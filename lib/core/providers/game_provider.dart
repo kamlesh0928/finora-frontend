@@ -1,32 +1,66 @@
 import 'package:flutter/material.dart';
 
+import '../data/scenario_data.dart';
+
 class GameProvider extends ChangeNotifier {
   double _savings = 5000.0;
-  double _stressLevel = 0.3; // 0.0 to 1.0 (30% stress)
-  int _currentScenarioIndex = 1;
+  double _stressLevel = 0.20;
+  int _currentScenarioIndex = 0;
+  String _currentRole = 'Farmer';
+  List<Scenario> _scenarios = [];
 
   double get savings => _savings;
   double get stressLevel => _stressLevel;
   int get currentScenarioIndex => _currentScenarioIndex;
+  String get currentRole => _currentRole;
+  int get totalScenarios => _scenarios.length;
+  bool get hasMoreScenarios => _currentScenarioIndex < _scenarios.length;
 
-  // Simulating a decision made in the game
-  void makeDecision(double cost, double stressImpact) {
-    _savings -= cost;
+  /// Returns the current scenario, or null if all scenarios are completed.
+  Scenario? get currentScenario {
+    if (_currentScenarioIndex < _scenarios.length) {
+      return _scenarios[_currentScenarioIndex];
+    }
+    return null;
+  }
 
-    // Real-world logic: Savings cannot be negative
+  /// Load the scenario set for the selected role.
+  void loadScenariosForRole(String role) {
+    _currentRole = role;
+    _scenarios = scenariosByRole[role] ?? [];
+    _currentScenarioIndex = 0;
+    _savings = 5000.0;
+    _stressLevel = 0.20;
+    // TODO: Backend Integration - Fetch user progress from /api/game/progress/:userId to restore saved state.
+    notifyListeners();
+  }
+
+  /// Process a player decision and update savings and stress.
+  void makeDecision(Decision decision) {
+    _savings += decision.savingsImpact;
+
+    // Savings cannot drop below zero
     if (_savings < 0) {
       _savings = 0.0;
     }
 
-    _stressLevel += stressImpact;
+    _stressLevel += decision.stressImpact;
 
     // Clamp stress between 0 and 1
-    if (_stressLevel < 0) _stressLevel = 0.0;
-    if (_stressLevel > 1.0) _stressLevel = 1.0;
+    _stressLevel = _stressLevel.clamp(0.0, 1.0);
 
     _currentScenarioIndex++;
-    notifyListeners();
 
-    // TODO: In the future, save these new values to Hive for offline persistence
+    // TODO: Backend Integration - Send POST to /api/game/decision with decision data and updated stats. Persist to Hive for offline.
+    notifyListeners();
+  }
+
+  /// Reset game state to defaults for the current role.
+  void resetGame() {
+    _currentScenarioIndex = 0;
+    _savings = 5000.0;
+    _stressLevel = 0.20;
+    // TODO: Backend Integration - Send POST to /api/game/reset/:userId to reset server-side progress.
+    notifyListeners();
   }
 }
