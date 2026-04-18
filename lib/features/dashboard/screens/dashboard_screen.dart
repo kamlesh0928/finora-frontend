@@ -1,463 +1,320 @@
+/// Redesigned Dashboard — central hub showing wallet, health score, and module entry points.
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/game_provider.dart';
-import '../../auth/screens/login_screen.dart';
+import '../../../core/providers/wallet_provider.dart';
+import '../../../core/providers/connectivity_provider.dart';
+import '../../../core/utils/formatters.dart';
 import '../../game/screens/scenario_screen.dart';
+import '../../wallet/screens/wallet_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final gameProvider = context.watch<GameProvider>();
-    final authProvider = context.watch<AuthProvider>();
+    final game = context.watch<GameProvider>();
+    final auth = context.watch<AuthProvider>();
+    final wallet = context.watch<WalletProvider>();
+    final connectivity = context.watch<ConnectivityProvider>();
     final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Finora Dashboard',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-            if (authProvider.userRole != null)
-              Text(
-                'Playing as: ${authProvider.userRole}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Reset Progress',
-            onPressed: () {
-              _showResetDialog(context, gameProvider);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () {
-              _handleLogout(context);
-            },
-          ),
-        ],
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Financial Overview',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Savings Card
-              _buildSavingsCard(context, gameProvider.savings),
-              const SizedBox(height: 16),
-
-              // Stress Indicator
-              _buildStressIndicator(context, gameProvider.stressLevel),
-              const SizedBox(height: 16),
-
-              // Scenario Progress Card
-              _buildProgressCard(context, gameProvider),
-              const SizedBox(height: 24),
-
-              // Quick Tips
-              _buildTipsCard(context),
-              const SizedBox(height: 32),
-
-              // Start Next Scenario Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: gameProvider.hasMoreScenarios
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ScenarioScreen(),
-                            ),
-                          );
-                        }
-                      : null,
-                  icon: Icon(
-                    gameProvider.hasMoreScenarios
-                        ? Icons.play_arrow_rounded
-                        : Icons.check_circle_outline,
-                    size: 28,
-                  ),
-                  label: Text(
-                    gameProvider.hasMoreScenarios
-                        ? 'Start Next Scenario'
-                        : 'All Scenarios Completed',
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSavingsCard(BuildContext context, double savings) {
-    final theme = Theme.of(context);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primary.withValues(alpha: 0.8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.savings_outlined,
-                      size: 18,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Current Savings',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'INR ${savings.toStringAsFixed(0)}',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  savings > 3000
-                      ? 'Healthy savings buffer'
-                      : savings > 1000
-                      ? 'Consider building reserves'
-                      : 'Low savings - be cautious',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.account_balance_wallet,
-              size: 36,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStressIndicator(BuildContext context, double stressLevel) {
-    final theme = Theme.of(context);
-    final stressPercent = (stressLevel * 100).toInt();
-
-    Color stressColor;
-    String stressLabel;
-    IconData stressIcon;
-
-    if (stressLevel > 0.7) {
-      stressColor = theme.colorScheme.error;
-      stressLabel = 'High Stress';
-      stressIcon = Icons.warning_amber_rounded;
-    } else if (stressLevel > 0.4) {
-      stressColor = const Color(0xFFF57C00);
-      stressLabel = 'Moderate Stress';
-      stressIcon = Icons.info_outline;
-    } else {
-      stressColor = const Color(0xFF43A047);
-      stressLabel = 'Low Stress';
-      stressIcon = Icons.check_circle_outline;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+              // Header
               Row(
                 children: [
-                  Icon(stressIcon, size: 20, color: stressColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Financial Stress',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hello, ${auth.userName ?? "Player"} 👋',
+                          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: _getRoleColor(auth.userRole).withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                auth.userRole ?? 'Select Role',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: _getRoleColor(auth.userRole),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            if (!connectivity.isOnline)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.cloud_off, size: 12, color: Colors.orange),
+                                    const SizedBox(width: 4),
+                                    Text('Offline', style: theme.textTheme.labelSmall?.copyWith(color: Colors.orange)),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Health Score Circle
+                  GestureDetector(
+                    onTap: () => _showHealthScoreInfo(context, game),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox(
+                          width: 52, height: 52,
+                          child: CircularProgressIndicator(
+                            value: game.financialHealthScore / 100,
+                            strokeWidth: 4,
+                            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                            color: _healthColor(game.financialHealthScore),
+                          ),
+                        ),
+                        Text(
+                          '${game.financialHealthScore}',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: _healthColor(game.financialHealthScore),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
+
+              // Wallet Card
+              GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen())),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [theme.colorScheme.primary, const Color(0xFF1B5E3B)]),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [BoxShadow(color: theme.colorScheme.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Wallet Balance', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+                          const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.white54),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        Formatters.currency(wallet.balance),
+                        style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          _miniStat('↑ Earned', Formatters.shortCurrency(wallet.totalEarned), const Color(0xFF81C784)),
+                          const SizedBox(width: 16),
+                          _miniStat('↓ Spent', Formatters.shortCurrency(wallet.totalSpent), const Color(0xFFEF9A9A)),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.speed, size: 14, color: Colors.white70),
+                                const SizedBox(width: 4),
+                                Text('Stress ${(game.stressLevel * 100).toInt()}%',
+                                    style: theme.textTheme.labelSmall?.copyWith(color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Three Module Cards
+              Text('Learning Modules', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+              // These cards are just informational since bottom nav handles navigation
+              _buildModuleCard(context, 'Smart Budgeting', 'Learn to allocate money wisely', Icons.receipt_long, const Color(0xFF1565C0), game.currentScenarioIndex, game.totalScenarios),
+              const SizedBox(height: 10),
+              _buildModuleCard(context, 'Fraud Prevention', 'Protect yourself from scams', Icons.shield, const Color(0xFFD32F2F), game.safetyScore, 100),
+              const SizedBox(height: 10),
+              _buildModuleCard(context, 'Emergency Fund', 'Build your safety net', Icons.savings, const Color(0xFFF57C00), (wallet.emergencyFundProgress * 100).toInt(), 100),
+              const SizedBox(height: 20),
+
+              // Daily Scenario Challenge
+              if (game.hasMoreScenarios) ...[
+                Text('Daily Challenge', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ScenarioScreen())),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.tertiary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(color: theme.colorScheme.tertiary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                          child: Icon(Icons.play_arrow_rounded, color: theme.colorScheme.tertiary, size: 28),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(game.currentScenario?.title ?? 'Next Scenario', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text('Tap to start your next financial challenge', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 20),
+
+              // Quick Tip
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: stressColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFFF3E5F5),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Text(
-                  '$stressPercent%',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: stressColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lightbulb, color: Color(0xFF7B1FA2), size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Tip: Follow the 50-30-20 rule — 50% needs, 30% wants, 20% savings.',
+                        style: theme.textTheme.bodySmall?.copyWith(color: const Color(0xFF4A148C), height: 1.4),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 16),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            stressLabel,
-            style: theme.textTheme.bodySmall?.copyWith(color: stressColor),
-          ),
-          const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: stressLevel,
-              backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              color: stressColor,
-              minHeight: 10,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildProgressCard(BuildContext context, GameProvider gameProvider) {
+  Widget _miniStat(String label, String value, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 10, color: Colors.white.withValues(alpha: 0.6))),
+        Text(value, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: color)),
+      ],
+    );
+  }
+
+  Widget _buildModuleCard(BuildContext context, String title, String subtitle, IconData icon, Color color, int progress, int total) {
     final theme = Theme.of(context);
-    final completed = gameProvider.currentScenarioIndex;
-    final total = gameProvider.totalScenarios;
-    final progress = total > 0 ? completed / total : 0.0;
+    final pct = total > 0 ? (progress / total).clamp(0.0, 1.0) : 0.0;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(20),
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
       ),
       child: Row(
         children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 56,
-                height: 56,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  strokeWidth: 5,
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                  color: theme.colorScheme.secondary,
-                ),
-              ),
-              Text(
-                '$completed/$total',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.secondary,
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+            child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Scenario Progress',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  completed == total && total > 0
-                      ? 'Great job! You completed all scenarios.'
-                      : 'Complete scenarios to level up your financial skills.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(value: pct, backgroundColor: color.withValues(alpha: 0.1), color: color, minHeight: 4),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
+          Text('${(pct * 100).toInt()}%', style: theme.textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
-  Widget _buildTipsCard(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.tertiary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.tertiary.withValues(alpha: 0.25),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.lightbulb_outline,
-            color: theme.colorScheme.tertiary,
-            size: 28,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Quick Tip',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.tertiary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Always try to maintain an emergency fund equal to at least 3 months of expenses.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  Color _getRoleColor(String? role) {
+    switch (role) {
+      case 'Farmer': return const Color(0xFF4CAF50);
+      case 'Woman': return const Color(0xFFE91E63);
+      case 'Student': return const Color(0xFF2196F3);
+      case 'Young Adult': return const Color(0xFFFF9800);
+      default: return const Color(0xFF757575);
+    }
   }
 
-  void _handleLogout(BuildContext context) {
+  Color _healthColor(int score) {
+    if (score >= 70) return const Color(0xFF43A047);
+    if (score >= 40) return const Color(0xFFF57C00);
+    return const Color(0xFFD32F2F);
+  }
+
+  void _showHealthScoreInfo(BuildContext context, GameProvider game) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              context.read<AuthProvider>().logout();
-              Navigator.pop(ctx);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showResetDialog(BuildContext context, GameProvider gameProvider) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Reset Progress'),
-        content: const Text(
-          'This will reset your savings, stress level, and scenario progress. Continue?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              gameProvider.resetGame();
-              Navigator.pop(ctx);
-            },
-            child: const Text('Reset'),
-          ),
-        ],
+        title: const Text('Financial Health Score'),
+        content: Text('Your score: ${game.financialHealthScore}/100\n\nBased on:\n• Wallet balance\n• Emergency fund\n• Stress level\n• Safety score\n\nMake good financial decisions to improve!'),
+        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Got it'))],
       ),
     );
   }
