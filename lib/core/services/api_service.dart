@@ -1,6 +1,3 @@
-/// HTTP API service for communicating with the Finora backend.
-/// Handles token management, error handling, and offline detection.
-
 import 'dart:convert';
 import 'dart:io';
 

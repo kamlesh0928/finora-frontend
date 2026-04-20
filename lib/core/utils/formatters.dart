@@ -1,5 +1,3 @@
-/// Formatting utilities for currency, percentages, and dates.
-
 class Formatters {
   Formatters._();
 

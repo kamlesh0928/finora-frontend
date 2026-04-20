@@ -1,4 +1,3 @@
-/// Achievement / Badge model.
 class AchievementModel {
   final String id;
   final String badgeId;

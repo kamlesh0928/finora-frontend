@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/providers/auth_provider.dart';
+import '../../dashboard/screens/main_shell_screen.dart';
 import 'role_selection_screen.dart';
 import 'signup_screen.dart';
 
@@ -35,17 +36,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (success && mounted) {
-      if (authProvider.userRole != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
-        );
-      }
+      final destination = authProvider.userRole != null
+          ? const MainShellScreen()
+          : const RoleSelectionScreen();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => destination),
+      );
     } else if (mounted && authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -61,9 +58,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final success = await authProvider.loginWithGoogle();
 
     if (success && mounted) {
+      final destination = authProvider.userRole != null
+          ? const MainShellScreen()
+          : const RoleSelectionScreen();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+        MaterialPageRoute(builder: (_) => destination),
       );
     } else if (mounted && authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(

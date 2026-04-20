@@ -1,5 +1,3 @@
-/// Connectivity state management — monitors network and triggers sync.
-
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';

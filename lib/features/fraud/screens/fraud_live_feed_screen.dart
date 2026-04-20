@@ -13,7 +13,10 @@ class FraudLiveFeedScreen extends StatelessWidget {
           children: [
             const Icon(Icons.rss_feed, size: 80, color: Color(0xFFD32F2F)),
             const SizedBox(height: 20),
-            Text('Coming Soon!', style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'Coming Soon!',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 10),
             const Text('Real-time database of trending financial scams.'),
           ],

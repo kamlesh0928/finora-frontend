@@ -1,5 +1,3 @@
-/// Fraud Micro Challenge Screen — quiz-style scam identification.
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +9,8 @@ class FraudMicroChallengeScreen extends StatefulWidget {
   const FraudMicroChallengeScreen({super.key});
 
   @override
-  State<FraudMicroChallengeScreen> createState() => _FraudMicroChallengeScreenState();
+  State<FraudMicroChallengeScreen> createState() =>
+      _FraudMicroChallengeScreenState();
 }
 
 class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
@@ -26,7 +25,10 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
 
   void _selectAnswer(String id) {
     if (_answered) return;
-    setState(() { _selectedId = id; _answered = true; });
+    setState(() {
+      _selectedId = id;
+      _answered = true;
+    });
 
     if (id == _current.correctAnswerId) {
       _score += _current.points;
@@ -39,17 +41,47 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
       _showResults();
       return;
     }
-    setState(() { _currentIndex++; _selectedId = null; _answered = false; });
+    setState(() {
+      _currentIndex++;
+      _selectedId = null;
+      _answered = false;
+    });
   }
 
   void _showResults() {
     final game = context.read<GameProvider>();
     final wallet = context.read<WalletProvider>();
+    final total = microChallenges.length;
+    final pct = _correctCount / total;
 
-    game.updateSafetyScore((_correctCount * 3) - ((microChallenges.length - _correctCount) * 2));
+    game.updateSafetyScore((_correctCount * 3) - ((total - _correctCount) * 2));
 
-    if (_correctCount >= microChallenges.length * 0.8) {
-      wallet.credit(amount: 500, category: 'reward', description: 'Micro Challenge: $_correctCount/${microChallenges.length} correct!', sourceModule: 'fraud_prevention');
+    String rewardText = '';
+    if (pct >= 0.8) {
+      wallet.credit(
+        amount: 500,
+        category: 'reward',
+        description: 'Micro Challenge: $_correctCount/$total correct!',
+        sourceModule: 'fraud_prevention',
+      );
+      rewardText = 'Excellent! Earned 500 reward!';
+    } else if (pct >= 0.6) {
+      wallet.credit(
+        amount: 250,
+        category: 'reward',
+        description: 'Micro Challenge: $_correctCount/$total correct',
+        sourceModule: 'fraud_prevention',
+      );
+      rewardText = 'Good effort! Earned 250 reward.';
+    } else if (pct < 0.5) {
+      wallet.debit(
+        amount: 200,
+        category: 'penalty',
+        description: 'Micro Challenge: Poor score $_correctCount/$total',
+        sourceModule: 'fraud_prevention',
+      );
+      game.updateStressLevel(0.05);
+      rewardText = 'Lost 200 — needs improvement.';
     }
 
     showDialog(
@@ -60,21 +92,66 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(_correctCount >= microChallenges.length * 0.7 ? Icons.emoji_events : Icons.info_outline,
-              size: 56, color: _correctCount >= microChallenges.length * 0.7 ? const Color(0xFFF9A825) : const Color(0xFFF57C00)),
+            Icon(
+              pct >= 0.7
+                  ? Icons.emoji_events
+                  : (pct >= 0.5
+                        ? Icons.info_outline
+                        : Icons.warning_amber_rounded),
+              size: 56,
+              color: pct >= 0.7
+                  ? const Color(0xFFF9A825)
+                  : (pct >= 0.5
+                        ? const Color(0xFFF57C00)
+                        : const Color(0xFFD32F2F)),
+            ),
             const SizedBox(height: 12),
-            Text('Challenge Complete!', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              'Challenge Complete!',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
-            Text('Score: $_score points', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: const Color(0xFF1565C0))),
-            Text('$_correctCount/${microChallenges.length} correct', style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 8),
-            if (_correctCount >= microChallenges.length * 0.8)
-              const Text('🎉 Bonus ₹500 earned!', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF43A047))),
+            Text(
+              'Score: $_score points',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: const Color(0xFF1565C0)),
+            ),
+            Text(
+              '$_correctCount/$total correct',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            if (rewardText.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: pct >= 0.6
+                      ? const Color(0xFFC8E6C9)
+                      : const Color(0xFFFFCDD2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  rewardText,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: pct >= 0.6
+                        ? const Color(0xFF2E7D32)
+                        : const Color(0xFFC62828),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
           ElevatedButton(
-            onPressed: () { Navigator.pop(ctx); Navigator.pop(context); },
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pop(context);
+            },
             child: const Text('Done'),
           ),
         ],
@@ -95,8 +172,17 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
           Container(
             margin: const EdgeInsets.only(right: 14),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFFE3F2FD), borderRadius: BorderRadius.circular(10)),
-            child: Text('$_score pts', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1565C0))),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '$_score pts',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1565C0),
+              ),
+            ),
           ),
         ],
       ),
@@ -117,9 +203,17 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Text(challenge.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                challenge.title,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 12),
-              Text(challenge.question, style: theme.textTheme.bodyLarge?.copyWith(height: 1.4)),
+              Text(
+                challenge.question,
+                style: theme.textTheme.bodyLarge?.copyWith(height: 1.4),
+              ),
               const SizedBox(height: 24),
               // Options
               ...challenge.options.map((opt) {
@@ -128,8 +222,13 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
                 Color? cardColor;
                 Color? borderColor;
                 if (_answered) {
-                  if (isCorrect) { cardColor = const Color(0xFFE8F5E9); borderColor = const Color(0xFF43A047); }
-                  else if (isSelected) { cardColor = const Color(0xFFFFEBEE); borderColor = const Color(0xFFD32F2F); }
+                  if (isCorrect) {
+                    cardColor = const Color(0xFFE8F5E9);
+                    borderColor = const Color(0xFF43A047);
+                  } else if (isSelected) {
+                    cardColor = const Color(0xFFFFEBEE);
+                    borderColor = const Color(0xFFD32F2F);
+                  }
                 }
 
                 return Padding(
@@ -142,23 +241,61 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
                       decoration: BoxDecoration(
                         color: cardColor ?? theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: borderColor ?? theme.colorScheme.outlineVariant, width: _answered && (isCorrect || isSelected) ? 2 : 1),
+                        border: Border.all(
+                          color:
+                              borderColor ?? theme.colorScheme.outlineVariant,
+                          width: _answered && (isCorrect || isSelected) ? 2 : 1,
+                        ),
                       ),
                       child: Row(
                         children: [
                           Container(
-                            width: 28, height: 28,
+                            width: 28,
+                            height: 28,
                             decoration: BoxDecoration(
-                              color: _answered ? (isCorrect ? const Color(0xFF43A047) : (isSelected ? const Color(0xFFD32F2F) : Colors.grey.shade300)) : Colors.grey.shade200,
+                              color: _answered
+                                  ? (isCorrect
+                                        ? const Color(0xFF43A047)
+                                        : (isSelected
+                                              ? const Color(0xFFD32F2F)
+                                              : Colors.grey.shade300))
+                                  : Colors.grey.shade200,
                               shape: BoxShape.circle,
                             ),
-                            child: Center(child: Text(opt.id.toUpperCase(),
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _answered ? Colors.white : Colors.grey.shade600))),
+                            child: Center(
+                              child: Text(
+                                opt.id.toUpperCase(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: _answered
+                                      ? Colors.white
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 12),
-                          Expanded(child: Text(opt.text, style: theme.textTheme.bodyMedium?.copyWith(height: 1.3))),
-                          if (_answered && isCorrect) const Icon(Icons.check_circle, color: Color(0xFF43A047), size: 20),
-                          if (_answered && isSelected && !isCorrect) const Icon(Icons.cancel, color: Color(0xFFD32F2F), size: 20),
+                          Expanded(
+                            child: Text(
+                              opt.text,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                          if (_answered && isCorrect)
+                            const Icon(
+                              Icons.check_circle,
+                              color: Color(0xFF43A047),
+                              size: 20,
+                            ),
+                          if (_answered && isSelected && !isCorrect)
+                            const Icon(
+                              Icons.cancel,
+                              color: Color(0xFFD32F2F),
+                              size: 20,
+                            ),
                         ],
                       ),
                     ),
@@ -170,13 +307,29 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFE3F2FD), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE3F2FD),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.lightbulb, size: 18, color: Color(0xFF1565C0)),
+                      const Icon(
+                        Icons.lightbulb,
+                        size: 18,
+                        color: Color(0xFF1565C0),
+                      ),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(challenge.explanation, style: const TextStyle(fontSize: 13, color: Color(0xFF0D47A1), height: 1.3))),
+                      Expanded(
+                        child: Text(
+                          challenge.explanation,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF0D47A1),
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -187,8 +340,16 @@ class _FraudMicroChallengeScreenState extends State<FraudMicroChallengeScreen> {
                   height: 52,
                   child: ElevatedButton(
                     onPressed: _next,
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD32F2F)),
-                    child: Text(_isLast ? 'See Results' : 'Next Challenge', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD32F2F),
+                    ),
+                    child: Text(
+                      _isLast ? 'See Results' : 'Next Challenge',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
             ],

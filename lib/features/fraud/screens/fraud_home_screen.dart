@@ -1,5 +1,3 @@
-/// Fraud Prevention Shield — hub for fraud simulations and challenges.
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,24 +30,49 @@ class FraudHomeScreen extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: const Color(0xFFD32F2F).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                    child: const Icon(Icons.shield, color: Color(0xFFD32F2F), size: 24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD32F2F).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.shield,
+                      color: Color(0xFFD32F2F),
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  Text('Fraud Prevention', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Fraud Prevention',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
-              Text('Learn to identify and prevent financial scams.', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              Text(
+                'Learn to identify and prevent financial scams.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
               const SizedBox(height: 20),
 
               // Safety Score Card
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFFD32F2F), Color(0xFFB71C1C)]),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFD32F2F), Color(0xFFB71C1C)],
+                  ),
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: const Color(0xFFD32F2F).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD32F2F).withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -57,13 +80,29 @@ class FraudHomeScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Safety Score', style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+                          Text(
+                            'Safety Score',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('${game.safetyScore}/100', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+                          Text(
+                            '${game.safetyScore}/100',
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(value: game.safetyScore / 100, backgroundColor: Colors.white24, color: Colors.white, minHeight: 6),
+                            child: LinearProgressIndicator(
+                              value: game.safetyScore / 100,
+                              backgroundColor: Colors.white24,
+                              color: Colors.white,
+                              minHeight: 6,
+                            ),
                           ),
                         ],
                       ),
@@ -71,8 +110,15 @@ class FraudHomeScreen extends StatelessWidget {
                     const SizedBox(width: 16),
                     Container(
                       padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), shape: BoxShape.circle),
-                      child: const Icon(Icons.verified_user, color: Colors.white, size: 32),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.verified_user,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                     ),
                   ],
                 ),
@@ -80,35 +126,70 @@ class FraudHomeScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Micro Challenges
-              Text('⚡ Quick Challenges', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                '⚡ Quick Challenges',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 12),
               GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FraudMicroChallengeScreen())),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const FraudMicroChallengeScreen(),
+                  ),
+                ),
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFCE4EC),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFD32F2F).withValues(alpha: 0.15)),
+                    border: Border.all(
+                      color: const Color(0xFFD32F2F).withValues(alpha: 0.15),
+                    ),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: const Color(0xFFD32F2F).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.quiz, color: Color(0xFFD32F2F), size: 24),
+                        decoration: BoxDecoration(
+                          color: const Color(
+                            0xFFD32F2F,
+                          ).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.quiz,
+                          color: Color(0xFFD32F2F),
+                          size: 24,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Spot the Scam Quiz', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-                            Text('${microChallenges.length} challenges • 10 points each', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                            Text(
+                              'Spot the Scam Quiz',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              '${microChallenges.length} challenges • 10 points each',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      const Icon(Icons.arrow_forward_ios, size: 14, color: Color(0xFFD32F2F)),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                        color: Color(0xFFD32F2F),
+                      ),
                     ],
                   ),
                 ),
@@ -116,24 +197,53 @@ class FraudHomeScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Fraud Simulations
-              Text('🎭 Fraud Simulations', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                '🎭 Fraud Simulations',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text('Face realistic scams. Can you tell real from fake?', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              Text(
+                'Face realistic scams. Can you tell real from fake?',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
               const SizedBox(height: 12),
-              ...simulations.map((sim) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _buildSimulationCard(context, sim),
-              )),
+              ...simulations.map(
+                (sim) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _buildSimulationCard(context, sim),
+                ),
+              ),
               const SizedBox(height: 24),
 
               // Live Fraud Feed
-              Text('📢 Trending Scam Alerts', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                '📢 Trending Scam Alerts',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 12),
-              _feedCard(theme, '🔴 UPI Fraud', 'Fake collect requests pretending to be refunds. Never accept from unknown.'),
+              _feedCard(
+                theme,
+                '🔴 UPI Fraud',
+                'Fake collect requests pretending to be refunds. Never accept from unknown.',
+              ),
               const SizedBox(height: 8),
-              _feedCard(theme, '🟠 KYC Scam', 'Messages claiming account block unless you update KYC via link.'),
+              _feedCard(
+                theme,
+                '🟠 KYC Scam',
+                'Messages claiming account block unless you update KYC via link.',
+              ),
               const SizedBox(height: 8),
-              _feedCard(theme, '🔴 Delivery OTP', 'Callers pretending to be agents asking OTP for "verification".'),
+              _feedCard(
+                theme,
+                '🔴 Delivery OTP',
+                'Callers pretending to be agents asking OTP for "verification".',
+              ),
               const SizedBox(height: 16),
             ],
           ),
@@ -147,15 +257,34 @@ class FraudHomeScreen extends StatelessWidget {
     IconData typeIcon;
     Color typeColor;
     switch (sim.type) {
-      case 'sms': typeIcon = Icons.sms; typeColor = const Color(0xFF1565C0); break;
-      case 'whatsapp': typeIcon = Icons.chat; typeColor = const Color(0xFF43A047); break;
-      case 'phone_call': typeIcon = Icons.phone; typeColor = const Color(0xFFF57C00); break;
-      case 'email': typeIcon = Icons.email; typeColor = const Color(0xFF7B1FA2); break;
-      default: typeIcon = Icons.warning; typeColor = const Color(0xFFD32F2F);
+      case 'sms':
+        typeIcon = Icons.sms;
+        typeColor = const Color(0xFF1565C0);
+        break;
+      case 'whatsapp':
+        typeIcon = Icons.chat;
+        typeColor = const Color(0xFF43A047);
+        break;
+      case 'phone_call':
+        typeIcon = Icons.phone;
+        typeColor = const Color(0xFFF57C00);
+        break;
+      case 'email':
+        typeIcon = Icons.email;
+        typeColor = const Color(0xFF7B1FA2);
+        break;
+      default:
+        typeIcon = Icons.warning;
+        typeColor = const Color(0xFFD32F2F);
     }
 
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FraudSimulationScreen(simulation: sim))),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FraudSimulationScreen(simulation: sim),
+        ),
+      ),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -167,7 +296,10 @@ class FraudHomeScreen extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: typeColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                color: typeColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Icon(typeIcon, color: typeColor, size: 22),
             ),
             const SizedBox(width: 12),
@@ -175,12 +307,26 @@ class FraudHomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(sim.title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-                  Text(sim.type.toUpperCase(), style: theme.textTheme.labelSmall?.copyWith(color: typeColor)),
+                  Text(
+                    sim.title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    sim.type.toUpperCase(),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: typeColor,
+                    ),
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 14, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
@@ -190,13 +336,27 @@ class FraudHomeScreen extends StatelessWidget {
   Widget _feedCard(ThemeData theme, String title, String desc) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: const Color(0xFFFFF8E1), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(desc, style: theme.textTheme.bodySmall?.copyWith(height: 1.3, color: const Color(0xFF795548))),
+          Text(
+            desc,
+            style: theme.textTheme.bodySmall?.copyWith(
+              height: 1.3,
+              color: const Color(0xFF795548),
+            ),
+          ),
         ],
       ),
     );

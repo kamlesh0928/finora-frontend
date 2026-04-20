@@ -1,6 +1,3 @@
-/// Hive-based local storage for offline-first architecture.
-/// All game data is persisted locally and synced when online.
-
 import 'dart:convert';
 
 import 'package:hive_flutter/hive_flutter.dart';
@@ -62,6 +59,22 @@ class HiveStorage {
 
   double getEmergencyFund() {
     return (_box.get('emergency_fund') ?? 0.0) as double;
+  }
+
+  Future<void> saveTotalEarned(double amount) async {
+    await _box.put('total_earned', amount);
+  }
+
+  double getTotalEarned() {
+    return (_box.get('total_earned') ?? 0.0) as double;
+  }
+
+  Future<void> saveTotalSpent(double amount) async {
+    await _box.put('total_spent', amount);
+  }
+
+  double getTotalSpent() {
+    return (_box.get('total_spent') ?? 0.0) as double;
   }
 
   // ── Transactions ──────────────────────────────────────────────────────────
@@ -155,6 +168,59 @@ class HiveStorage {
 
   double getStressLevel() {
     return (_box.get('stress_level') ?? 0.20) as double;
+  }
+
+  // ── Game Tracking ────────────────────────────────────────────────────────
+
+  Future<void> saveTotalDecisionsMade(int count) async {
+    await _box.put('total_decisions_made', count);
+  }
+
+  int getTotalDecisionsMade() {
+    return (_box.get('total_decisions_made') ?? 0) as int;
+  }
+
+  Future<void> saveBudgetChallengesCompleted(int count) async {
+    await _box.put('budget_challenges_completed', count);
+  }
+
+  int getBudgetChallengesCompleted() {
+    return (_box.get('budget_challenges_completed') ?? 0) as int;
+  }
+
+  // ── Achievements ─────────────────────────────────────────────────────────
+
+  Future<void> saveEarnedAchievements(Set<String> ids) async {
+    await _box.put('earned_achievements', jsonEncode(ids.toList()));
+  }
+
+  Set<String> getEarnedAchievements() {
+    final data = _box.get('earned_achievements');
+    if (data == null) return {};
+    return (jsonDecode(data) as List).cast<String>().toSet();
+  }
+
+  // ── Notifications ────────────────────────────────────────────────────────
+
+  Future<void> saveNotifications(List<Map<String, dynamic>> notifications) async {
+    await _box.put('notifications', jsonEncode(notifications));
+  }
+
+  List<Map<String, dynamic>> getNotifications() {
+    final data = _box.get('notifications');
+    if (data == null) return [];
+    final list = jsonDecode(data) as List;
+    return list.map((e) => Map<String, dynamic>.from(e)).toList();
+  }
+
+  Future<void> saveLastNotificationTime(DateTime time) async {
+    await _box.put('last_notification_time', time.toIso8601String());
+  }
+
+  DateTime? getLastNotificationTime() {
+    final data = _box.get('last_notification_time') as String?;
+    if (data == null) return null;
+    return DateTime.tryParse(data);
   }
 
   // ── Clear All ─────────────────────────────────────────────────────────────

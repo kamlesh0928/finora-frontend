@@ -23,25 +23,45 @@ class AuthProvider extends ChangeNotifier {
   String get language => _user?.language ?? _storage.getLanguage();
 
   /// Try to restore session from local storage.
+  /// Validates the token with the backend if online; falls back to cache if offline.
   Future<void> tryAutoLogin() async {
     final token = _storage.getToken();
     final cachedUser = _storage.getUser();
 
-    if (token != null && cachedUser != null) {
-      _isAuthenticated = true;
-      _user = cachedUser;
+    if (token == null || cachedUser == null) {
+      _isAuthenticated = false;
       notifyListeners();
-
-      // Try to refresh from server
-      try {
-        final data = await _api.get('/user/profile');
-        _user = UserModel.fromJson(data);
-        await _storage.saveUser(_user!);
-      } catch (_) {
-        // Offline — use cached data
-      }
-      notifyListeners();
+      return;
     }
+
+    // Optimistically set authenticated from cache
+    _user = cachedUser;
+
+    // Validate token with server
+    try {
+      final data = await _api.get('/user/profile');
+      _user = UserModel.fromJson(data);
+      await _storage.saveUser(_user!);
+      _isAuthenticated = true;
+    } on ApiException catch (e) {
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        // Token expired or invalid — force re-login
+        _isAuthenticated = false;
+        _user = null;
+        await _api.clearToken();
+        await _storage.clearToken();
+        await _storage.clearUser();
+        notifyListeners();
+        return;
+      }
+      // Other server errors — trust cached data (offline-first)
+      _isAuthenticated = true;
+    } catch (_) {
+      // Network unreachable — trust cached data
+      _isAuthenticated = true;
+    }
+
+    notifyListeners();
   }
 
   /// Authenticate with email and password.
@@ -62,6 +82,9 @@ class AuthProvider extends ChangeNotifier {
       await _api.saveToken(token);
       await _storage.saveToken(token);
       await _storage.saveUser(_user!);
+      if (_user!.role != null) {
+        await _storage.saveRole(_user!.role!);
+      }
 
       _isAuthenticated = true;
       _isLoading = false;
@@ -155,6 +178,9 @@ class AuthProvider extends ChangeNotifier {
       await _api.saveToken(token);
       await _storage.saveToken(token);
       await _storage.saveUser(_user!);
+      if (_user!.role != null) {
+        await _storage.saveRole(_user!.role!);
+      }
 
       _isAuthenticated = true;
       _isLoading = false;
@@ -229,6 +255,7 @@ class AuthProvider extends ChangeNotifier {
     await _api.clearToken();
     await _storage.clearToken();
     await _storage.clearUser();
+    await _storage.clearAll();
     notifyListeners();
   }
 }

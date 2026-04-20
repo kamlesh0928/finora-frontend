@@ -16,6 +16,7 @@ class WalletProvider extends ChangeNotifier {
   double _totalEarned = 0.0;
   double _totalSpent = 0.0;
   List<TransactionModel> _transactions = [];
+  bool _isProcessing = false;
 
   double get balance => _balance;
   double get emergencyFund => _emergencyFund;
@@ -30,7 +31,44 @@ class WalletProvider extends ChangeNotifier {
   void loadFromStorage() {
     _balance = _storage.getWalletBalance();
     _emergencyFund = _storage.getEmergencyFund();
+    _totalEarned = _storage.getTotalEarned();
+    _totalSpent = _storage.getTotalSpent();
     _transactions = _storage.getTransactions();
+    notifyListeners();
+  }
+
+  /// Sync wallet state from server (single source of truth).
+  Future<void> syncFromServer() async {
+    try {
+      final data = await _api.get('/wallet/balance');
+      if (data != null) {
+        _balance = (data['balance'] ?? _balance).toDouble();
+        _emergencyFund = (data['emergency_fund'] ?? _emergencyFund).toDouble();
+        _totalEarned = (data['total_earned'] ?? _totalEarned).toDouble();
+        _totalSpent = (data['total_spent'] ?? _totalSpent).toDouble();
+
+        await _storage.saveWalletBalance(_balance);
+        await _storage.saveEmergencyFund(_emergencyFund);
+        await _storage.saveTotalEarned(_totalEarned);
+        await _storage.saveTotalSpent(_totalSpent);
+        notifyListeners();
+      }
+    } catch (_) {
+      // Offline — use cached data
+    }
+  }
+
+  /// Update wallet state from a sync pull response.
+  void updateFromSyncPull(Map<String, dynamic> userData) {
+    _balance = (userData['wallet_balance'] ?? _balance).toDouble();
+    _emergencyFund = (userData['emergency_fund'] ?? _emergencyFund).toDouble();
+    _totalEarned = (userData['total_earned'] ?? _totalEarned).toDouble();
+    _totalSpent = (userData['total_spent'] ?? _totalSpent).toDouble();
+
+    _storage.saveWalletBalance(_balance);
+    _storage.saveEmergencyFund(_emergencyFund);
+    _storage.saveTotalEarned(_totalEarned);
+    _storage.saveTotalSpent(_totalSpent);
     notifyListeners();
   }
 
@@ -42,6 +80,9 @@ class WalletProvider extends ChangeNotifier {
     String? sourceModule,
     String? scenarioId,
   }) async {
+    if (_isProcessing) return;
+    _isProcessing = true;
+
     _balance += amount;
     _totalEarned += amount;
 
@@ -60,6 +101,7 @@ class WalletProvider extends ChangeNotifier {
 
     _transactions.insert(0, txn);
     await _storage.saveWalletBalance(_balance);
+    await _storage.saveTotalEarned(_totalEarned);
     await _storage.addTransaction(txn);
     notifyListeners();
 
@@ -81,6 +123,8 @@ class WalletProvider extends ChangeNotifier {
     } catch (_) {
       // Offline — already queued
     }
+
+    _isProcessing = false;
   }
 
   /// Debit money from wallet.
@@ -91,6 +135,9 @@ class WalletProvider extends ChangeNotifier {
     String? sourceModule,
     String? scenarioId,
   }) async {
+    if (_isProcessing) return;
+    _isProcessing = true;
+
     _balance = (_balance - amount).clamp(0.0, double.infinity);
     _totalSpent += amount;
 
@@ -109,6 +156,7 @@ class WalletProvider extends ChangeNotifier {
 
     _transactions.insert(0, txn);
     await _storage.saveWalletBalance(_balance);
+    await _storage.saveTotalSpent(_totalSpent);
     await _storage.addTransaction(txn);
     notifyListeners();
 
@@ -126,10 +174,13 @@ class WalletProvider extends ChangeNotifier {
         },
       );
     } catch (_) {}
+
+    _isProcessing = false;
   }
 
   /// Contribute to emergency fund (deducts from wallet).
   Future<void> contributeToEmergencyFund(double amount) async {
+    if (_isProcessing) return;
     if (amount > _balance) amount = _balance;
 
     _balance -= amount;
@@ -141,7 +192,7 @@ class WalletProvider extends ChangeNotifier {
     await debit(
       amount: amount,
       category: 'emergency',
-      description: 'Emergency fund contribution: ₹${amount.toStringAsFixed(0)}',
+      description: 'Emergency fund contribution',
       sourceModule: 'emergency_fund',
     );
   }
@@ -152,7 +203,7 @@ class WalletProvider extends ChangeNotifier {
     _emergencyFund -= available;
     await _storage.saveEmergencyFund(_emergencyFund);
     notifyListeners();
-    return available; // Returns how much was covered
+    return available;
   }
 
   /// Receive monthly salary based on role.
@@ -161,7 +212,7 @@ class WalletProvider extends ChangeNotifier {
     await credit(
       amount: salary,
       category: 'salary',
-      description: 'Monthly salary received: ₹${salary.toStringAsFixed(0)}',
+      description: 'Monthly salary received',
       sourceModule: 'system',
     );
   }
@@ -175,6 +226,8 @@ class WalletProvider extends ChangeNotifier {
     _transactions = [];
     await _storage.saveWalletBalance(_balance);
     await _storage.saveEmergencyFund(0.0);
+    await _storage.saveTotalEarned(0.0);
+    await _storage.saveTotalSpent(0.0);
     await _storage.clearTransactions();
     notifyListeners();
   }

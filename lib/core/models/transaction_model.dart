@@ -1,4 +1,3 @@
-/// Transaction model — records every wallet change.
 class TransactionModel {
   final String id;
   final String userId;
