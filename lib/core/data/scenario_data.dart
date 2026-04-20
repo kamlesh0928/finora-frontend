@@ -1,7 +1,3 @@
-// Data models and scenario definitions for the Finora game engine.
-// Each role has a curated set of financial scenarios covering savings,
-// budgeting, and risk management themes.
-
 class Decision {
   final String title;
   final String subtitle;

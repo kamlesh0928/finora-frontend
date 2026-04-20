@@ -122,10 +122,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
+                    if (value == null || value.trim().isEmpty) {
                       return 'Please enter your email';
-                    if (!value.contains('@'))
+                    }
+                    if (!value.contains('@')) {
                       return 'Please enter a valid email';
+                    }
                     return null;
                   },
                   decoration: const InputDecoration(
@@ -141,10 +143,12 @@ class _SignupScreenState extends State<SignupScreen> {
                   obscureText: _obscurePassword,
                   textInputAction: TextInputAction.done,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
+                    if (value == null || value.trim().isEmpty) {
                       return 'Please enter your password';
-                    if (value.length < 6)
+                    }
+                    if (value.length < 6) {
                       return 'Password must be at least 6 characters';
+                    }
                     return null;
                   },
                   decoration: InputDecoration(

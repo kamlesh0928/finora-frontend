@@ -1,5 +1,3 @@
-/// Main shell with bottom navigation — hosts all primary screens.
-
 import 'package:flutter/material.dart';
 
 import '../../budgeting/screens/budgeting_home_screen.dart';
@@ -31,10 +29,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -56,28 +51,52 @@ class _MainShellScreenState extends State<MainShellScreen> {
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined, color: theme.colorScheme.onSurfaceVariant),
-              selectedIcon: Icon(Icons.home_rounded, color: theme.colorScheme.primary),
+              icon: Icon(
+                Icons.home_outlined,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              selectedIcon: Icon(
+                Icons.home_rounded,
+                color: theme.colorScheme.primary,
+              ),
               label: 'Home',
             ),
             NavigationDestination(
-              icon: Icon(Icons.receipt_long_outlined, color: theme.colorScheme.onSurfaceVariant),
-              selectedIcon: Icon(Icons.receipt_long, color: const Color(0xFF1565C0)),
+              icon: Icon(
+                Icons.receipt_long_outlined,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              selectedIcon: Icon(
+                Icons.receipt_long,
+                color: const Color(0xFF1565C0),
+              ),
               label: 'Budget',
             ),
             NavigationDestination(
-              icon: Icon(Icons.shield_outlined, color: theme.colorScheme.onSurfaceVariant),
+              icon: Icon(
+                Icons.shield_outlined,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
               selectedIcon: Icon(Icons.shield, color: const Color(0xFFD32F2F)),
               label: 'Shield',
             ),
             NavigationDestination(
-              icon: Icon(Icons.savings_outlined, color: theme.colorScheme.onSurfaceVariant),
+              icon: Icon(
+                Icons.savings_outlined,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
               selectedIcon: Icon(Icons.savings, color: const Color(0xFFF57C00)),
               label: 'Emergency',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline, color: theme.colorScheme.onSurfaceVariant),
-              selectedIcon: Icon(Icons.person, color: theme.colorScheme.primary),
+              icon: Icon(
+                Icons.person_outline,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              selectedIcon: Icon(
+                Icons.person,
+                color: theme.colorScheme.primary,
+              ),
               label: 'Profile',
             ),
           ],

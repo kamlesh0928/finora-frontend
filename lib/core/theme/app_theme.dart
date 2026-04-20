@@ -1,5 +1,3 @@
-/// App theme constants and helpers.
-
 import 'package:flutter/material.dart';
 
 class AppColors {

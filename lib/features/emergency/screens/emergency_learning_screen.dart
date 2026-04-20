@@ -13,9 +13,14 @@ class EmergencyLearningScreen extends StatelessWidget {
           children: [
             const Icon(Icons.school, size: 80, color: Color(0xFFF57C00)),
             const SizedBox(height: 20),
-            Text('Coming Soon!', style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'Coming Soon!',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 10),
-            const Text('Detailed guides on building and maintaining a resilient emergency fund.'),
+            const Text(
+              'Detailed guides on building and maintaining a resilient emergency fund.',
+            ),
           ],
         ),
       ),

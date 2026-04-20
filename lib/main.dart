@@ -7,13 +7,14 @@ import 'core/constants/app_constants.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/connectivity_provider.dart';
 import 'core/providers/game_provider.dart';
+import 'core/providers/notification_provider.dart';
 import 'core/providers/wallet_provider.dart';
 import 'core/services/sync_service.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/auth/screens/signup_screen.dart';
 import 'features/dashboard/screens/main_shell_screen.dart';
 import 'features/auth/screens/role_selection_screen.dart';
-import 'features/splash/splash_screen.dart';
+import 'features/splash/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,9 @@ class FinoraApp extends StatelessWidget {
           create: (_) => WalletProvider()..loadFromStorage(),
         ),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
+        ChangeNotifierProvider(
+          create: (_) => NotificationProvider()..initialize(),
+        ),
       ],
       child: MaterialApp(
         title: 'Finora',

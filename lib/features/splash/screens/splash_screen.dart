@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
-import '../../dashboard/screens/dashboard_screen.dart';
+import '../../auth/screens/role_selection_screen.dart';
+import '../../dashboard/screens/main_shell_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -42,18 +43,29 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigateToNext() async {
-    await Future.delayed(const Duration(seconds: 3));
+    final authProvider = context.read<AuthProvider>();
+
+    // Validate token with backend (or fallback to cache if offline)
+    await authProvider.tryAutoLogin();
+
+    // Minimum splash display time
+    await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
-    final authProvider = context.read<AuthProvider>();
+    Widget destination;
+    if (authProvider.isAuthenticated) {
+      if (authProvider.userRole != null) {
+        destination = const MainShellScreen();
+      } else {
+        destination = const RoleSelectionScreen();
+      }
+    } else {
+      destination = const LoginScreen();
+    }
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => authProvider.isAuthenticated
-            ? const DashboardScreen()
-            : const LoginScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => destination),
     );
   }
 

@@ -13,9 +13,14 @@ class BudgetGoalsScreen extends StatelessWidget {
           children: [
             const Icon(Icons.flag_rounded, size: 80, color: Color(0xFF1565C0)),
             const SizedBox(height: 20),
-            Text('Coming Soon!', style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              'Coming Soon!',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 10),
-            const Text('Set long-term goals like buying a tractor or pursuing education.'),
+            const Text(
+              'Set long-term goals like buying a tractor or pursuing education.',
+            ),
           ],
         ),
       ),

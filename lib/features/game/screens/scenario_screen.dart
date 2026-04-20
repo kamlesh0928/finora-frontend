@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/data/scenario_data.dart';
 import '../../../core/providers/game_provider.dart';
+import '../../../core/providers/wallet_provider.dart';
 
 class ScenarioScreen extends StatelessWidget {
   const ScenarioScreen({super.key});
@@ -201,7 +202,10 @@ class ScenarioScreen extends StatelessWidget {
                     context: context,
                     decision: decision,
                     onTap: () {
-                      gameProvider.makeDecision(decision);
+                      gameProvider.makeDecision(
+                        decision,
+                        context.read<WalletProvider>(),
+                      );
                       Navigator.pop(context);
                     },
                   ),
