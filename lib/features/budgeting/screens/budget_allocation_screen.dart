@@ -58,18 +58,21 @@ class _BudgetAllocationScreenState extends State<BudgetAllocationScreen> {
 
     int score = 50;
     // 50-30-20 rule scoring
-    if (savingsPct >= 0.20)
+    if (savingsPct >= 0.20) {
       score += 20;
-    else if (savingsPct >= 0.10)
+    } else if (savingsPct >= 0.10) {
       score += 10;
-    if (needsPct <= 0.55)
+    }
+    if (needsPct <= 0.55) {
       score += 15;
-    else if (needsPct <= 0.65)
+    } else if (needsPct <= 0.65) {
       score += 5;
-    if (wantsPct <= 0.30)
+    }
+    if (wantsPct <= 0.30) {
       score += 15;
-    else if (wantsPct <= 0.40)
+    } else if (wantsPct <= 0.40) {
       score += 5;
+    }
 
     return score.clamp(0, 100);
   }

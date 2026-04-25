@@ -1,4 +1,5 @@
 /// In-app notification provider with randomized event triggers.
+library;
 
 import 'dart:async';
 import 'dart:math';
@@ -65,17 +66,20 @@ class NotificationProvider extends ChangeNotifier {
   static const List<Map<String, String>> _notificationPool = [
     {
       'title': 'Emergency Alert',
-      'body': 'An unexpected expense has come up! Check the Emergency module to prepare.',
+      'body':
+          'An unexpected expense has come up! Check the Emergency module to prepare.',
       'type': 'emergency',
     },
     {
       'title': 'Scam Warning',
-      'body': 'A suspicious message was reported in your area. Test your fraud detection skills.',
+      'body':
+          'A suspicious message was reported in your area. Test your fraud detection skills.',
       'type': 'fraud',
     },
     {
       'title': 'Savings Milestone',
-      'body': 'You are making progress! Keep saving consistently to build financial security.',
+      'body':
+          'You are making progress! Keep saving consistently to build financial security.',
       'type': 'reward',
     },
     {
@@ -85,17 +89,20 @@ class NotificationProvider extends ChangeNotifier {
     },
     {
       'title': 'Financial Health Check',
-      'body': 'Review your spending patterns. Are you staying within budget this month?',
+      'body':
+          'Review your spending patterns. Are you staying within budget this month?',
       'type': 'tip',
     },
     {
       'title': 'Emergency Fund Reminder',
-      'body': 'Building an emergency fund protects against unexpected expenses. Contribute today.',
+      'body':
+          'Building an emergency fund protects against unexpected expenses. Contribute today.',
       'type': 'emergency',
     },
     {
       'title': 'Fraud Prevention',
-      'body': 'Never share OTP or banking details over phone. Practice identifying scams.',
+      'body':
+          'Never share OTP or banking details over phone. Practice identifying scams.',
       'type': 'fraud',
     },
     {
@@ -105,12 +112,14 @@ class NotificationProvider extends ChangeNotifier {
     },
     {
       'title': 'Investment Insight',
-      'body': 'Starting early with small amounts can grow significantly with compound interest.',
+      'body':
+          'Starting early with small amounts can grow significantly with compound interest.',
       'type': 'tip',
     },
     {
       'title': 'Debt Awareness',
-      'body': 'High-interest loans can double your debt. Always compare interest rates before borrowing.',
+      'body':
+          'High-interest loans can double your debt. Always compare interest rates before borrowing.',
       'type': 'tip',
     },
   ];
@@ -148,7 +157,8 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void _triggerRandomNotification() {
-    final template = _notificationPool[_random.nextInt(_notificationPool.length)];
+    final template =
+        _notificationPool[_random.nextInt(_notificationPool.length)];
     final notification = AppNotification(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: template['title']!,

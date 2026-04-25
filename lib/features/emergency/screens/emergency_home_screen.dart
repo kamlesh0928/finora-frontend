@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -44,7 +45,7 @@ class EmergencyHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Emergency Fund',
+                    'emergency_fund'.tr(),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -53,7 +54,7 @@ class EmergencyHomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Build a safety net for unexpected expenses.',
+                'emergency_fund_desc'.tr(),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -82,7 +83,7 @@ class EmergencyHomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Emergency Fund',
+                          'emergency_fund'.tr(),
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                           ),
@@ -131,7 +132,7 @@ class EmergencyHomeScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Target: ${Formatters.currency(AppConstants.emergencyFundTarget)}',
+                          '${'target'.tr()}: ${Formatters.currency(AppConstants.emergencyFundTarget)}',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
@@ -153,7 +154,7 @@ class EmergencyHomeScreen extends StatelessWidget {
                       ? () => _showContributeDialog(context, wallet)
                       : null,
                   icon: const Icon(Icons.add_circle_outline),
-                  label: const Text('Contribute to Emergency Fund'),
+                  label: Text('contribute_to_ef'.tr()),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFF57C00),
                     side: const BorderSide(color: Color(0xFFF57C00)),
@@ -164,14 +165,14 @@ class EmergencyHomeScreen extends StatelessWidget {
 
               // Real-Life Events
               Text(
-                '🚨 Emergency Events',
+                '🚨 ${'emergency_events'.tr()}',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Can your fund handle these?',
+                'can_handle_events'.tr(),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -216,7 +217,7 @@ class EmergencyHomeScreen extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  'Cost: ${Formatters.currency(event.costAmount)}',
+                                  '${'cost'.tr()}: ${Formatters.currency(event.costAmount)}',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: const Color(0xFFE65100),
                                   ),
@@ -239,7 +240,7 @@ class EmergencyHomeScreen extends StatelessWidget {
 
               // Micro Learning
               Text(
-                '📖 Did You Know?',
+                '📖 ${'did_you_know'.tr()}',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -297,18 +298,18 @@ class EmergencyHomeScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Contribute to Emergency Fund'),
+        title: Text('contribute_to_ef'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Available: ${Formatters.currency(wallet.balance)}'),
+            Text('${'available'.tr()}: ${Formatters.currency(wallet.balance)}'),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Amount (₹)',
-                prefixIcon: Icon(Icons.currency_rupee),
+              decoration: InputDecoration(
+                labelText: 'amount_inr'.tr(),
+                prefixIcon: const Icon(Icons.currency_rupee),
               ),
             ),
           ],
@@ -316,7 +317,7 @@ class EmergencyHomeScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text('cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () {
@@ -327,7 +328,7 @@ class EmergencyHomeScreen extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Contributed ${Formatters.currency(amt)} to emergency fund!',
+                      '${'contribute'.tr()} ${Formatters.currency(amt)} !',
                     ),
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -337,7 +338,7 @@ class EmergencyHomeScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF57C00),
             ),
-            child: const Text('Contribute'),
+            child: Text('contribute'.tr()),
           ),
         ],
       ),

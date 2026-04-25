@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/game_provider.dart';
@@ -37,7 +38,7 @@ class DashboardScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Hello, ${auth.userName ?? "Player"} 👋',
+                          '${'hello'.tr()}, ${auth.userName ?? "Player"} 👋',
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -57,7 +58,9 @@ class DashboardScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                auth.userRole ?? 'Select Role',
+                                auth.userRole != null
+                                    ? auth.userRole!.toLowerCase().tr()
+                                    : 'select_role'.tr(),
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   color: _getRoleColor(auth.userRole),
                                   fontWeight: FontWeight.w600,
@@ -163,7 +166,7 @@ class DashboardScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Wallet Balance',
+                            'wallet_balance'.tr(),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: Colors.white70,
                             ),
@@ -187,13 +190,13 @@ class DashboardScreen extends StatelessWidget {
                       Row(
                         children: [
                           _miniStat(
-                            '↑ Earned',
+                            '↑ ${'earned'.tr()}',
                             Formatters.shortCurrency(wallet.totalEarned),
                             const Color(0xFF81C784),
                           ),
                           const SizedBox(width: 16),
                           _miniStat(
-                            '↓ Spent',
+                            '↓ ${'spent'.tr()}',
                             Formatters.shortCurrency(wallet.totalSpent),
                             const Color(0xFFEF9A9A),
                           ),
@@ -216,7 +219,7 @@ class DashboardScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Stress ${(game.stressLevel * 100).toInt()}%',
+                                  '${'stress'.tr()} ${(game.stressLevel * 100).toInt()}%',
                                   style: theme.textTheme.labelSmall?.copyWith(
                                     color: Colors.white,
                                   ),
@@ -234,7 +237,7 @@ class DashboardScreen extends StatelessWidget {
 
               // Three Module Cards
               Text(
-                'Learning Modules',
+                'learning_modules'.tr(),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -243,7 +246,7 @@ class DashboardScreen extends StatelessWidget {
               // These cards are just informational since bottom nav handles navigation
               _buildModuleCard(
                 context,
-                'Smart Budgeting',
+                'smart_budgeting'.tr(),
                 'Learn to allocate money wisely',
                 Icons.receipt_long,
                 const Color(0xFF1565C0),
@@ -253,7 +256,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 10),
               _buildModuleCard(
                 context,
-                'Fraud Prevention',
+                'fraud_prevention'.tr(),
                 'Protect yourself from scams',
                 Icons.shield,
                 const Color(0xFFD32F2F),
@@ -263,7 +266,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 10),
               _buildModuleCard(
                 context,
-                'Emergency Fund',
+                'emergency_fund'.tr(),
                 'Build your safety net',
                 Icons.savings,
                 const Color(0xFFF57C00),
@@ -275,7 +278,7 @@ class DashboardScreen extends StatelessWidget {
               // Daily Scenario Challenge
               if (game.hasMoreScenarios) ...[
                 Text(
-                  'Daily Challenge',
+                  'daily_challenge'.tr(),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -319,14 +322,15 @@ class DashboardScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                game.currentScenario?.title ?? 'Next Scenario',
+                                game.currentScenario?.title ??
+                                    'next_scenario'.tr(),
                                 style: theme.textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Tap to start your next financial challenge',
+                                'tap_to_start'.tr(),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -363,7 +367,7 @@ class DashboardScreen extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Tip: Follow the 50-30-20 rule — 50% needs, 30% wants, 20% savings.',
+                        'tip_rule'.tr(),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: const Color(0xFF4A148C),
                           height: 1.4,

@@ -5,6 +5,8 @@ import '../../../core/providers/auth_provider.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../auth/screens/role_selection_screen.dart';
 import '../../dashboard/screens/main_shell_screen.dart';
+import '../../../core/providers/wallet_provider.dart';
+import '../../../core/providers/game_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -54,6 +56,8 @@ class _SplashScreenState extends State<SplashScreen>
 
     Widget destination;
     if (authProvider.isAuthenticated) {
+      context.read<WalletProvider>().loadFromStorage();
+      context.read<GameProvider>().loadFromStorage();
       if (authProvider.userRole != null) {
         destination = const MainShellScreen();
       } else {

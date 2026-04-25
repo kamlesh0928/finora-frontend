@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/data/scenario_data.dart';
 import '../../../core/providers/game_provider.dart';
@@ -61,7 +62,7 @@ class ScenarioScreen extends StatelessWidget {
     // Edge case: no more scenarios
     if (scenario == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Scenario')),
+        appBar: AppBar(title: Text('scenario'.tr())),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -75,7 +76,7 @@ class ScenarioScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'All Scenarios Completed!',
+                  'all_scenarios_completed'.tr(),
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -83,7 +84,7 @@ class ScenarioScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'You have completed all available scenarios for your profile. Check your dashboard for your final stats.',
+                  'completed_all_scenarios'.tr(),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -92,7 +93,7 @@ class ScenarioScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Back to Dashboard'),
+                  child: Text('back_to_dashboard'.tr()),
                 ),
               ],
             ),
@@ -105,7 +106,7 @@ class ScenarioScreen extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Scenario ${gameProvider.currentScenarioIndex + 1} of ${gameProvider.totalScenarios}',
+          '${'scenario'.tr()} ${gameProvider.currentScenarioIndex + 1} / ${gameProvider.totalScenarios}',
         ),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -187,7 +188,7 @@ class ScenarioScreen extends StatelessWidget {
 
               // Decisions header
               Text(
-                'Your Decision',
+                'your_decision'.tr(),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -252,7 +253,7 @@ class ScenarioScreen extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            'Stress: ${(gameProvider.stressLevel * 100).toInt()}%',
+            '${'stress'.tr()}: ${(gameProvider.stressLevel * 100).toInt()}%',
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: gameProvider.stressLevel > 0.7
@@ -429,9 +430,9 @@ class ScenarioScreen extends StatelessWidget {
       case 'budgeting':
         return 'Budgeting';
       case 'risk_management':
-        return 'Risk Management';
+        return 'Risk Management'.tr();
       default:
-        return themeKey;
+        return themeKey.tr();
     }
   }
 }

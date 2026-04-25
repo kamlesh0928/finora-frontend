@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/wallet_provider.dart';
+import '../../../core/providers/game_provider.dart';
 import '../../dashboard/screens/main_shell_screen.dart';
 import 'role_selection_screen.dart';
 import 'signup_screen.dart';
@@ -36,6 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (success && mounted) {
+      context.read<WalletProvider>().loadFromStorage();
+      context.read<GameProvider>().loadFromStorage();
       final destination = authProvider.userRole != null
           ? const MainShellScreen()
           : const RoleSelectionScreen();
@@ -58,6 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final success = await authProvider.loginWithGoogle();
 
     if (success && mounted) {
+      context.read<WalletProvider>().loadFromStorage();
+      context.read<GameProvider>().loadFromStorage();
       final destination = authProvider.userRole != null
           ? const MainShellScreen()
           : const RoleSelectionScreen();
@@ -130,6 +138,40 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _showLanguageDialog(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+    showDialog(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text('language'.tr()),
+        children: AppConstants.supportedLanguages.entries
+            .map(
+              (e) => SimpleDialogOption(
+                onPressed: () async {
+                  await context.setLocale(Locale(e.key));
+                  auth.setLanguage(e.key);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                child: Row(
+                  children: [
+                    if (context.locale.languageCode == e.key)
+                      const Icon(
+                        Icons.check,
+                        color: Color(0xFF43A047),
+                        size: 18,
+                      ),
+                    if (context.locale.languageCode == e.key)
+                      const SizedBox(width: 8),
+                    Text(e.value, style: const TextStyle(fontSize: 16)),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -137,6 +179,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () => _showLanguageDialog(context),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -164,7 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
 
                 Text(
-                  'Welcome back',
+                  'welcome_back'.tr(),
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -172,12 +225,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in to continue your learning journey.',
+                  'sign_in_continue'.tr(),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
 
                 // Email field
                 TextFormField(
@@ -193,9 +246,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     return null;
                   },
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                  decoration: InputDecoration(
+                    labelText: 'email'.tr(),
+                    prefixIcon: const Icon(Icons.email_outlined),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -215,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'password'.tr(),
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -259,9 +312,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text(
-                            'Sign In',
-                            style: TextStyle(
+                        : Text(
+                            'sign_in'.tr(),
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -323,7 +376,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account?",
+                      'no_account'.tr(),
                       style: TextStyle(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -338,11 +391,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
+                        'sign_up'.tr(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
