@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/wallet_provider.dart';
+import '../../../core/providers/game_provider.dart';
 import 'role_selection_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -37,6 +41,8 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     if (success && mounted) {
+      context.read<WalletProvider>().loadFromStorage();
+      context.read<GameProvider>().loadFromStorage();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
@@ -53,9 +59,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> _handleGoogleSignIn() async {
     final authProvider = context.read<AuthProvider>();
-    final success = await authProvider.loginWithGoogle();
+    final success = await authProvider.loginWithGoogle(isSignUp: true);
 
     if (success && mounted) {
+      context.read<WalletProvider>().loadFromStorage();
+      context.read<GameProvider>().loadFromStorage();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
@@ -70,6 +78,40 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  void _showLanguageDialog(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+    showDialog(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text('language'.tr()),
+        children: AppConstants.supportedLanguages.entries
+            .map(
+              (e) => SimpleDialogOption(
+                onPressed: () async {
+                  await context.setLocale(Locale(e.key));
+                  auth.setLanguage(e.key);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                child: Row(
+                  children: [
+                    if (context.locale.languageCode == e.key)
+                      const Icon(
+                        Icons.check,
+                        color: Color(0xFF43A047),
+                        size: 18,
+                      ),
+                    if (context.locale.languageCode == e.key)
+                      const SizedBox(width: 8),
+                    Text(e.value, style: const TextStyle(fontSize: 16)),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -77,7 +119,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(title: const Text('Create Account')),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () => _showLanguageDialog(context),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -87,7 +139,7 @@ class _SignupScreenState extends State<SignupScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Join Finora',
+                  'create_account'.tr(),
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -95,64 +147,55 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Start your journey to financial freedom.',
+                  'start_journey'.tr(),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 32),
 
-                // Name field
+                // Name Field
                 TextFormField(
                   controller: _nameController,
-                  textInputAction: TextInputAction.next,
-                  validator: (value) => (value == null || value.trim().isEmpty)
-                      ? 'Please enter your name'
-                      : null,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    prefixIcon: Icon(Icons.person_outline),
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: 'full_name'.tr(),
+                    prefixIcon: const Icon(Icons.person_outline),
                   ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
-                // Email field
+                // Email Field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: 'email'.tr(),
+                    prefixIcon: const Icon(Icons.email_outlined),
+                  ),
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) {
+                    if (value == null ||
+                        value.isEmpty ||
+                        !value.contains('@')) {
                       return 'Please enter a valid email';
                     }
                     return null;
                   },
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
                 ),
                 const SizedBox(height: 16),
 
-                // Password field
+                // Password Field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
-                  textInputAction: TextInputAction.done,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: 'password'.tr(),
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -167,6 +210,15 @@ class _SignupScreenState extends State<SignupScreen> {
                       },
                     ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 32),
 
@@ -181,12 +233,12 @@ class _SignupScreenState extends State<SignupScreen> {
                             height: 24,
                             child: CircularProgressIndicator(
                               color: Colors.white,
-                              strokeWidth: 2.5,
+                              strokeWidth: 2,
                             ),
                           )
-                        : const Text(
-                            'Sign Up',
-                            style: TextStyle(
+                        : Text(
+                            'sign_up'.tr(),
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),

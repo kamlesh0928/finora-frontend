@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
@@ -26,7 +27,7 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Profile',
+                'profile'.tr(),
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -94,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
 
               // Stats grid
               Text(
-                'Your Stats',
+                'your_stats'.tr(),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -109,25 +110,25 @@ class ProfileScreen extends StatelessWidget {
                 childAspectRatio: 1.8,
                 children: [
                   _statCard(
-                    'Health Score',
+                    'health_score'.tr(),
                     '${game.financialHealthScore}/100',
                     Icons.favorite,
                     const Color(0xFFD32F2F),
                   ),
                   _statCard(
-                    'Safety Score',
+                    'safety_score'.tr(),
                     '${game.safetyScore}/100',
                     Icons.shield,
                     const Color(0xFF1565C0),
                   ),
                   _statCard(
-                    'Decisions',
+                    'decisions'.tr(),
                     '${game.totalDecisionsMade}',
                     Icons.check_circle,
                     const Color(0xFF43A047),
                   ),
                   _statCard(
-                    'Scenarios',
+                    'scenarios'.tr(),
                     '${game.currentScenarioIndex}/${game.totalScenarios}',
                     Icons.flag,
                     const Color(0xFFF57C00),
@@ -138,7 +139,7 @@ class ProfileScreen extends StatelessWidget {
 
               // Achievements
               Text(
-                'Achievements',
+                'achievements'.tr(),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -197,7 +198,7 @@ class ProfileScreen extends StatelessWidget {
 
               // Settings
               Text(
-                'Settings',
+                'settings'.tr(),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -206,21 +207,21 @@ class ProfileScreen extends StatelessWidget {
               _settingsTile(
                 context,
                 icon: Icons.language,
-                title: 'Language',
+                title: 'language'.tr(),
                 subtitle: auth.language == 'hi' ? 'हिन्दी' : 'English',
                 onTap: () => _showLanguageDialog(context, auth),
               ),
               _settingsTile(
                 context,
                 icon: Icons.refresh,
-                title: 'Reset Progress',
+                title: 'reset_progress'.tr(),
                 subtitle: 'Start fresh',
                 onTap: () => _showResetDialog(context, game, wallet),
               ),
               _settingsTile(
                 context,
                 icon: Icons.logout,
-                title: 'Logout',
+                title: 'logout'.tr(),
                 subtitle: 'Sign out of your account',
                 isDestructive: true,
                 onTap: () => _handleLogout(context, auth),
@@ -407,9 +408,10 @@ class ProfileScreen extends StatelessWidget {
         children: AppConstants.supportedLanguages.entries
             .map(
               (e) => SimpleDialogOption(
-                onPressed: () {
+                onPressed: () async {
+                  await context.setLocale(Locale(e.key));
                   auth.setLanguage(e.key);
-                  Navigator.pop(ctx);
+                  if (ctx.mounted) Navigator.pop(ctx);
                 },
                 child: Row(
                   children: [

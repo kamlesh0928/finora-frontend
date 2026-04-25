@@ -72,6 +72,12 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setBalance(double val) {
+    _balance = val;
+    _storage.saveWalletBalance(val);
+    notifyListeners();
+  }
+
   /// Credit money to wallet.
   Future<void> credit({
     required double amount,

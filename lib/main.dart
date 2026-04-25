@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/providers/auth_provider.dart';
@@ -16,6 +17,8 @@ import 'features/dashboard/screens/main_shell_screen.dart';
 import 'features/auth/screens/role_selection_screen.dart';
 import 'features/splash/screens/splash_screen.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -23,10 +26,20 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox(AppConstants.offlineBox);
 
+  // Initialize Localization
+  await EasyLocalization.ensureInitialized();
+
   // Start background sync
   SyncService().startListening();
 
-  runApp(const FinoraApp());
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('hi')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: const FinoraApp(),
+    ),
+  );
 }
 
 class FinoraApp extends StatelessWidget {
@@ -38,10 +51,11 @@ class FinoraApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(
-          create: (_) => GameProvider()..loadFromStorage(),
-        ),
-        ChangeNotifierProvider(
           create: (_) => WalletProvider()..loadFromStorage(),
+        ),
+        ChangeNotifierProxyProvider<WalletProvider, GameProvider>(
+          create: (_) => GameProvider()..loadFromStorage(),
+          update: (_, wallet, game) => game!..updateWallet(wallet),
         ),
         ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
         ChangeNotifierProvider(
@@ -49,6 +63,10 @@ class FinoraApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        navigatorKey: navigatorKey,
         title: 'Finora',
         debugShowCheckedModeBanner: false,
         theme: _buildTheme(),

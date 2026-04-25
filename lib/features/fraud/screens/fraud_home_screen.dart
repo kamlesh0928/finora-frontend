@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/game_provider.dart';
@@ -42,7 +43,7 @@ class FraudHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Fraud Prevention',
+                    'fraud_prevention'.tr(),
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -51,7 +52,7 @@ class FraudHomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Learn to identify and prevent financial scams.',
+                'learn_prevent_scams'.tr(),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -81,7 +82,7 @@ class FraudHomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Safety Score',
+                            'safety_score'.tr(),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: Colors.white70,
                             ),
@@ -127,7 +128,7 @@ class FraudHomeScreen extends StatelessWidget {
 
               // Micro Challenges
               Text(
-                '⚡ Quick Challenges',
+                '⚡ ${'quick_challenges'.tr()}',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -171,13 +172,13 @@ class FraudHomeScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Spot the Scam Quiz',
+                              'spot_scam_quiz'.tr(),
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             Text(
-                              '${microChallenges.length} challenges • 10 points each',
+                              '${microChallenges.length} ${'challenges_points'.tr()}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -198,14 +199,14 @@ class FraudHomeScreen extends StatelessWidget {
 
               // Fraud Simulations
               Text(
-                '🎭 Fraud Simulations',
+                '🎭 ${'fraud_simulations'.tr()}',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Face realistic scams. Can you tell real from fake?',
+                'face_realistic_scams'.tr(),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -221,7 +222,7 @@ class FraudHomeScreen extends StatelessWidget {
 
               // Live Fraud Feed
               Text(
-                '📢 Trending Scam Alerts',
+                '📢 ${'trending_alerts'.tr()}',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),

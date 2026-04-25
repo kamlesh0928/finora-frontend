@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
+
+import '../../../core/constants/app_constants.dart';
 
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/game_provider.dart';
+import '../../../core/providers/wallet_provider.dart';
 import '../../dashboard/screens/main_shell_screen.dart';
 
 class RoleSelectionScreen extends StatefulWidget {
@@ -17,25 +21,25 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
   static const List<_RoleOption> _roles = [
     _RoleOption(
-      name: 'Farmer',
+      name: 'farmer',
       icon: Icons.agriculture,
       subtitle: 'Manage irregular income and learn about crop insurance.',
       color: Color(0xFF4CAF50),
     ),
     _RoleOption(
-      name: 'Woman',
+      name: 'woman',
       icon: Icons.family_restroom,
       subtitle: 'Handle household budgets and build digital confidence.',
       color: Color(0xFFE91E63),
     ),
     _RoleOption(
-      name: 'Student',
+      name: 'student',
       icon: Icons.school,
       subtitle: 'Build smart money habits and stay safe online.',
       color: Color(0xFF2196F3),
     ),
     _RoleOption(
-      name: 'Young Adult',
+      name: 'young_adult',
       icon: Icons.work_outline,
       subtitle: 'Navigate credit, taxes, and avoid financial scams.',
       color: Color(0xFFFF9800),
@@ -48,15 +52,63 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
     });
   }
 
-  void _confirmSelection() {
+  void _confirmSelection() async {
     if (_selectedRole == null) return;
 
-    context.read<AuthProvider>().setUserRole(_selectedRole!);
-    context.read<GameProvider>().loadScenariosForRole(_selectedRole!);
+    final authProvider = context.read<AuthProvider>();
+    final gameProvider = context.read<GameProvider>();
+    final walletProvider = context.read<WalletProvider>();
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const MainShellScreen()),
+    String backendRole = _selectedRole!;
+    if (backendRole == 'young_adult') {
+      backendRole = 'Young Adult';
+    } else {
+      backendRole = backendRole[0].toUpperCase() + backendRole.substring(1);
+    }
+
+    await authProvider.setUserRole(backendRole);
+    gameProvider.loadScenariosForRole(backendRole);
+    await walletProvider.syncFromServer();
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MainShellScreen()),
+      );
+    }
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    final auth = context.read<AuthProvider>();
+    showDialog(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Select Language'),
+        children: AppConstants.supportedLanguages.entries
+            .map(
+              (e) => SimpleDialogOption(
+                onPressed: () async {
+                  await context.setLocale(Locale(e.key));
+                  auth.setLanguage(e.key);
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+                child: Row(
+                  children: [
+                    if (context.locale.languageCode == e.key)
+                      const Icon(
+                        Icons.check,
+                        color: Color(0xFF43A047),
+                        size: 18,
+                      ),
+                    if (context.locale.languageCode == e.key)
+                      const SizedBox(width: 8),
+                    Text(e.value, style: const TextStyle(fontSize: 16)),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 
@@ -73,15 +125,24 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.language),
+                    onPressed: () => _showLanguageDialog(context),
+                  ),
+                ],
+              ),
               Text(
-                'Who are you?',
+                'who_are_you'.tr(),
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Select your profile so we can personalize your financial scenarios.',
+                'select_profile'.tr(),
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -108,9 +169,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                 height: 52,
                 child: ElevatedButton(
                   onPressed: _selectedRole != null ? _confirmSelection : null,
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  child: Text(
+                    'continue'.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -159,7 +223,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
             ),
             const SizedBox(height: 14),
             Text(
-              role.name,
+              role.name.tr(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: isSelected ? role.color : theme.colorScheme.onSurface,

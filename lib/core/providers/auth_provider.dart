@@ -22,6 +22,17 @@ class AuthProvider extends ChangeNotifier {
   String? get userName => _user?.name;
   String get language => _user?.language ?? _storage.getLanguage();
 
+  Future<void> _saveUserData(UserModel user) async {
+    await _storage.saveUser(user);
+    if (user.role != null) {
+      await _storage.saveRole(user.role!);
+    }
+    await _storage.saveWalletBalance(user.walletBalance);
+    await _storage.saveEmergencyFund(user.emergencyFund);
+    await _storage.saveTotalEarned(user.totalEarned);
+    await _storage.saveTotalSpent(user.totalSpent);
+  }
+
   /// Try to restore session from local storage.
   /// Validates the token with the backend if online; falls back to cache if offline.
   Future<void> tryAutoLogin() async {
@@ -41,7 +52,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final data = await _api.get('/user/profile');
       _user = UserModel.fromJson(data);
-      await _storage.saveUser(_user!);
+      await _saveUserData(_user!);
       _isAuthenticated = true;
     } on ApiException catch (e) {
       if (e.statusCode == 401 || e.statusCode == 403) {
@@ -71,20 +82,18 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await _api.post('/auth/login', body: {
-        'email': email,
-        'password': password,
-      }, auth: false);
+      final data = await _api.post(
+        '/auth/login',
+        body: {'email': email, 'password': password},
+        auth: false,
+      );
 
       final token = data['access_token'] as String;
       _user = UserModel.fromJson(data['user']);
 
       await _api.saveToken(token);
       await _storage.saveToken(token);
-      await _storage.saveUser(_user!);
-      if (_user!.role != null) {
-        await _storage.saveRole(_user!.role!);
-      }
+      await _saveUserData(_user!);
 
       _isAuthenticated = true;
       _isLoading = false;
@@ -95,6 +104,8 @@ class AuthProvider extends ChangeNotifier {
       if (e is ApiException) {
         if (e.statusCode == 0) {
           _errorMessage = 'No internet connection. Please connect to sign in.';
+        } else if (e.statusCode == 404) {
+          _errorMessage = 'User not found. Please sign up first.';
         } else {
           _errorMessage = e.message;
         }
@@ -113,18 +124,18 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await _api.post('/auth/register', body: {
-        'name': name,
-        'email': email,
-        'password': password,
-      }, auth: false);
+      final data = await _api.post(
+        '/auth/register',
+        body: {'name': name, 'email': email, 'password': password},
+        auth: false,
+      );
 
       final token = data['access_token'] as String;
       _user = UserModel.fromJson(data['user']);
 
       await _api.saveToken(token);
       await _storage.saveToken(token);
-      await _storage.saveUser(_user!);
+      await _saveUserData(_user!);
 
       _isAuthenticated = true;
       _isLoading = false;
@@ -147,13 +158,16 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Authenticate via Google Sign-In.
-  Future<bool> loginWithGoogle() async {
+  Future<bool> loginWithGoogle({bool isSignUp = false}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       final googleSignIn = GoogleSignIn(scopes: ['email']);
+      // Force account selection dialog by signing out first
+      await googleSignIn.signOut();
+
       final googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -166,21 +180,23 @@ class AuthProvider extends ChangeNotifier {
       final googleAuth = await googleUser.authentication;
       final idToken = googleAuth.idToken ?? '';
 
-      final data = await _api.post('/auth/google', body: {
-        'id_token': idToken,
-        'name': googleUser.displayName ?? googleUser.email.split('@').first,
-        'email': googleUser.email,
-      }, auth: false);
+      final data = await _api.post(
+        '/auth/google',
+        body: {
+          'id_token': idToken,
+          'name': googleUser.displayName ?? googleUser.email.split('@').first,
+          'email': googleUser.email,
+          'is_signup': isSignUp,
+        },
+        auth: false,
+      );
 
       final token = data['access_token'] as String;
       _user = UserModel.fromJson(data['user']);
 
       await _api.saveToken(token);
       await _storage.saveToken(token);
-      await _storage.saveUser(_user!);
-      if (_user!.role != null) {
-        await _storage.saveRole(_user!.role!);
-      }
+      await _saveUserData(_user!);
 
       _isAuthenticated = true;
       _isLoading = false;
@@ -189,9 +205,13 @@ class AuthProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       if (e is ApiException) {
-        _errorMessage = e.statusCode == 0
-            ? 'Internet required for Google sign-in.'
-            : e.message;
+        if (e.statusCode == 0) {
+          _errorMessage = 'Internet required for Google sign-in.';
+        } else if (e.statusCode == 404) {
+          _errorMessage = 'User not found. Please sign up first.';
+        } else {
+          _errorMessage = e.message;
+        }
       } else {
         _errorMessage = 'Google sign-in failed. Please try again.';
       }
@@ -208,7 +228,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _api.put('/user/profile', body: {'role': role});
+      final data = await _api.put('/user/profile', body: {'role': role});
+      _user = UserModel.fromJson(data);
+      await _saveUserData(_user!);
+      notifyListeners();
     } catch (_) {}
   }
 
@@ -230,7 +253,11 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _api.post('/auth/forgot-password', body: {'email': email}, auth: false);
+      await _api.post(
+        '/auth/forgot-password',
+        body: {'email': email},
+        auth: false,
+      );
     } catch (_) {}
 
     _isLoading = false;
