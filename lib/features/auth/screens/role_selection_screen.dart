@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/constants/app_constants.dart';
-
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/game_provider.dart';
 import '../../../core/providers/wallet_provider.dart';
@@ -68,6 +67,12 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
 
     await authProvider.setUserRole(backendRole);
     gameProvider.loadScenariosForRole(backendRole);
+
+    final startingBalance =
+        AppConstants.roleStartingBalance[backendRole] ??
+        AppConstants.defaultWalletBalance;
+    walletProvider.setBalance(startingBalance);
+
     await walletProvider.syncFromServer();
 
     if (mounted) {
@@ -76,40 +81,6 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
         MaterialPageRoute(builder: (_) => const MainShellScreen()),
       );
     }
-  }
-
-  void _showLanguageDialog(BuildContext context) {
-    final auth = context.read<AuthProvider>();
-    showDialog(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: const Text('Select Language'),
-        children: AppConstants.supportedLanguages.entries
-            .map(
-              (e) => SimpleDialogOption(
-                onPressed: () async {
-                  await context.setLocale(Locale(e.key));
-                  auth.setLanguage(e.key);
-                  if (ctx.mounted) Navigator.pop(ctx);
-                },
-                child: Row(
-                  children: [
-                    if (context.locale.languageCode == e.key)
-                      const Icon(
-                        Icons.check,
-                        color: Color(0xFF43A047),
-                        size: 18,
-                      ),
-                    if (context.locale.languageCode == e.key)
-                      const SizedBox(width: 8),
-                    Text(e.value, style: const TextStyle(fontSize: 16)),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
   }
 
   @override
@@ -124,16 +95,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.language),
-                    onPressed: () => _showLanguageDialog(context),
-                  ),
-                ],
-              ),
+              const SizedBox(height: 32),
               Text(
                 'who_are_you'.tr(),
                 style: theme.textTheme.headlineMedium?.copyWith(
