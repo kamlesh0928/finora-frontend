@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/wallet_provider.dart';
 import '../../../core/providers/game_provider.dart';
@@ -78,40 +77,6 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-  void _showLanguageDialog(BuildContext context) {
-    final auth = context.read<AuthProvider>();
-    showDialog(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: Text('language'.tr()),
-        children: AppConstants.supportedLanguages.entries
-            .map(
-              (e) => SimpleDialogOption(
-                onPressed: () async {
-                  await context.setLocale(Locale(e.key));
-                  auth.setLanguage(e.key);
-                  if (ctx.mounted) Navigator.pop(ctx);
-                },
-                child: Row(
-                  children: [
-                    if (context.locale.languageCode == e.key)
-                      const Icon(
-                        Icons.check,
-                        color: Color(0xFF43A047),
-                        size: 18,
-                      ),
-                    if (context.locale.languageCode == e.key)
-                      const SizedBox(width: 8),
-                    Text(e.value, style: const TextStyle(fontSize: 16)),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -119,17 +84,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.language),
-            onPressed: () => _showLanguageDialog(context),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -138,12 +93,45 @@ class _SignupScreenState extends State<SignupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const SizedBox(height: 16),
+
+                // App Logo
+                Center(
+                  child: Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.2,
+                          ),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Image.asset(
+                        'assets/images/favicon-96x96.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
                 Text(
                   'create_account'.tr(),
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
+                    letterSpacing: -0.5,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -151,8 +139,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
 
                 // Name Field
                 TextFormField(

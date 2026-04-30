@@ -27,6 +27,10 @@ class WalletProvider extends ChangeNotifier {
   double get emergencyFundProgress =>
       (_emergencyFund / AppConstants.emergencyFundTarget).clamp(0.0, 1.0);
 
+  WalletProvider() {
+    _sync.registerPullCallback(updateFromSyncPull);
+  }
+
   /// Initialize from local storage.
   void loadFromStorage() {
     _balance = _storage.getWalletBalance();
@@ -59,7 +63,9 @@ class WalletProvider extends ChangeNotifier {
   }
 
   /// Update wallet state from a sync pull response.
-  void updateFromSyncPull(Map<String, dynamic> userData) {
+  void updateFromSyncPull(Map<String, dynamic> data) {
+    final userData = data['user'] ?? {};
+
     _balance = (userData['wallet_balance'] ?? _balance).toDouble();
     _emergencyFund = (userData['emergency_fund'] ?? _emergencyFund).toDouble();
     _totalEarned = (userData['total_earned'] ?? _totalEarned).toDouble();

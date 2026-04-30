@@ -67,10 +67,13 @@ class SyncService {
           return false;
         }
 
-        await _api.post('/sync/push', body: {
-          'items': queue,
-          'last_sync_at': DateTime.now().toIso8601String(),
-        });
+        await _api.post(
+          '/sync/push',
+          body: {
+            'items': queue,
+            'last_sync_at': DateTime.now().toIso8601String(),
+          },
+        );
 
         // Clear the queue on success
         await _storage.clearSyncQueue();
@@ -115,20 +118,18 @@ class SyncService {
         await _storage.saveStressLevel(
           (userJson['stress_level'] ?? 0.20).toDouble(),
         );
-        await _storage.saveSafetyScore(
-          userJson['safety_score'] ?? 50,
-        );
+        await _storage.saveSafetyScore(userJson['safety_score'] ?? 50);
         await _storage.saveTotalEarned(
           (userJson['total_earned'] ?? 0.0).toDouble(),
         );
         await _storage.saveTotalSpent(
           (userJson['total_spent'] ?? 0.0).toDouble(),
         );
+      }
 
-        // Notify all registered providers
-        for (final callback in _pullCallbacks) {
-          callback(userJson);
-        }
+      // Notify all registered providers with the full data payload
+      for (final callback in _pullCallbacks) {
+        callback(data);
       }
 
       return true;

@@ -13,7 +13,7 @@ class HiveStorage {
 
   Box get _box => Hive.box(AppConstants.offlineBox);
 
-  // ── User ──────────────────────────────────────────────────────────────────
+  // User
 
   Future<void> saveUser(UserModel user) async {
     await _box.put('user', jsonEncode(user.toJson()));
@@ -29,7 +29,7 @@ class HiveStorage {
     await _box.delete('user');
   }
 
-  // ── Auth Token ────────────────────────────────────────────────────────────
+  // Auth Token
 
   Future<void> saveToken(String token) async {
     await _box.put('auth_token', token);
@@ -43,14 +43,15 @@ class HiveStorage {
     await _box.delete('auth_token');
   }
 
-  // ── Wallet Balance ────────────────────────────────────────────────────────
+  // Wallet Balance
 
   Future<void> saveWalletBalance(double balance) async {
     await _box.put('wallet_balance', balance);
   }
 
   double getWalletBalance() {
-    return (_box.get('wallet_balance') ?? AppConstants.defaultWalletBalance) as double;
+    return (_box.get('wallet_balance') ?? AppConstants.defaultWalletBalance)
+        as double;
   }
 
   Future<void> saveEmergencyFund(double fund) async {
@@ -77,7 +78,7 @@ class HiveStorage {
     return (_box.get('total_spent') ?? 0.0) as double;
   }
 
-  // ── Transactions ──────────────────────────────────────────────────────────
+  // Transactions
 
   Future<void> addTransaction(TransactionModel txn) async {
     final txns = getTransactions();
@@ -101,9 +102,12 @@ class HiveStorage {
     await _box.delete('transactions');
   }
 
-  // ── Game Progress ─────────────────────────────────────────────────────────
+  // Game Progress
 
-  Future<void> saveCompletedScenarios(String module, List<String> scenarioIds) async {
+  Future<void> saveCompletedScenarios(
+    String module,
+    List<String> scenarioIds,
+  ) async {
     await _box.put('completed_$module', jsonEncode(scenarioIds));
   }
 
@@ -113,7 +117,7 @@ class HiveStorage {
     return (jsonDecode(data) as List).cast<String>();
   }
 
-  // ── Sync Queue ────────────────────────────────────────────────────────────
+  // Sync Queue
 
   Future<void> addToSyncQueue(Map<String, dynamic> item) async {
     final queue = getSyncQueue();
@@ -132,7 +136,7 @@ class HiveStorage {
     await _box.delete('sync_queue');
   }
 
-  // ── Settings ──────────────────────────────────────────────────────────────
+  // Settings
 
   Future<void> saveLanguage(String lang) async {
     await _box.put('language', lang);
@@ -150,17 +154,17 @@ class HiveStorage {
     return _box.get('selected_role') as String?;
   }
 
-  // ── Safety Score ──────────────────────────────────────────────────────────
+  // Safety Score
 
   Future<void> saveSafetyScore(int score) async {
     await _box.put('safety_score', score);
   }
 
   int getSafetyScore() {
-    return (_box.get('safety_score') ?? 50) as int;
+    return (_box.get('safety_score') ?? 0) as int;
   }
 
-  // ── Stress Level ──────────────────────────────────────────────────────────
+  // Stress Level
 
   Future<void> saveStressLevel(double level) async {
     await _box.put('stress_level', level);
@@ -170,7 +174,7 @@ class HiveStorage {
     return (_box.get('stress_level') ?? 0.20) as double;
   }
 
-  // ── Game Tracking ────────────────────────────────────────────────────────
+  // Game Tracking
 
   Future<void> saveTotalDecisionsMade(int count) async {
     await _box.put('total_decisions_made', count);
@@ -188,7 +192,7 @@ class HiveStorage {
     return (_box.get('budget_challenges_completed') ?? 0) as int;
   }
 
-  // ── Achievements ─────────────────────────────────────────────────────────
+  // Achievements
 
   Future<void> saveEarnedAchievements(Set<String> ids) async {
     await _box.put('earned_achievements', jsonEncode(ids.toList()));
@@ -200,9 +204,11 @@ class HiveStorage {
     return (jsonDecode(data) as List).cast<String>().toSet();
   }
 
-  // ── Notifications ────────────────────────────────────────────────────────
+  // Notifications
 
-  Future<void> saveNotifications(List<Map<String, dynamic>> notifications) async {
+  Future<void> saveNotifications(
+    List<Map<String, dynamic>> notifications,
+  ) async {
     await _box.put('notifications', jsonEncode(notifications));
   }
 
@@ -223,7 +229,7 @@ class HiveStorage {
     return DateTime.tryParse(data);
   }
 
-  // ── Clear All ─────────────────────────────────────────────────────────────
+  // Clear All
 
   Future<void> clearAll() async {
     await _box.clear();

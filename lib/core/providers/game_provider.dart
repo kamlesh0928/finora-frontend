@@ -18,8 +18,8 @@ class GameProvider extends ChangeNotifier {
   double _stressLevel = 0.20;
   int _currentScenarioIndex = 0;
   String _currentRole = 'Farmer';
-  int _safetyScore = 50;
-  int _financialHealthScore = 50;
+  int _safetyScore = 0;
+  int _financialHealthScore = 0;
   List<Scenario> _scenarios = [];
   List<String> _completedScenarioIds = [];
   int _totalDecisionsMade = 0;
@@ -48,6 +48,10 @@ class GameProvider extends ChangeNotifier {
     return null;
   }
 
+  GameProvider() {
+    _sync.registerPullCallback(syncFromServer);
+  }
+
   /// Load from local storage.
   void loadFromStorage() {
     _stressLevel = _storage.getStressLevel();
@@ -73,7 +77,9 @@ class GameProvider extends ChangeNotifier {
   }
 
   /// Sync game state from server pull response.
-  void syncFromServer(Map<String, dynamic> userData) {
+  void syncFromServer(Map<String, dynamic> data) {
+    final userData = data['user'] ?? {};
+
     _stressLevel = (userData['stress_level'] ?? _stressLevel).toDouble();
     _safetyScore = userData['safety_score'] ?? _safetyScore;
     _financialHealthScore =
@@ -96,6 +102,15 @@ class GameProvider extends ChangeNotifier {
         0,
         _scenarios.length,
       );
+    }
+
+    // Sync achievements
+    if (data['achievements'] != null) {
+      final achList = data['achievements'] as List;
+      for (final a in achList) {
+        _earnedAchievementIds.add(a['badge_id']);
+      }
+      _storage.saveEarnedAchievements(_earnedAchievementIds);
     }
 
     _recalculateHealthScore();
@@ -251,7 +266,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   void _recalculateHealthScore() {
-    int health = 50;
+    int health = 0;
     if (savings >= 10000) {
       health += 15;
     } else if (savings >= 5000) {
@@ -287,7 +302,7 @@ class GameProvider extends ChangeNotifier {
     _currentScenarioIndex = 0;
     if (_wallet != null) _wallet!.setBalance(5000.0);
     _stressLevel = 0.20;
-    _safetyScore = 50;
+    _safetyScore = 0;
     _completedScenarioIds = [];
     _totalDecisionsMade = 0;
     _goodDecisions = 0;

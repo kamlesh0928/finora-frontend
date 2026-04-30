@@ -2,11 +2,8 @@ class AppConstants {
   AppConstants._();
 
   // API
-  // static const String apiBaseUrl = 'http://192.168.56.1/api'; // Android emulator
-  // static const String apiBaseUrl = 'http://192.171.14.200:8000/api'; // Physical Wi-Fi Device
-  // static const String apiBaseUrl = 'http://127.0.0.1:8000/api'; // Physical phone via ADB Reverse
-  // static const String apiBaseUrl = 'http://localhost:8000/api'; // iOS / Web
-  static const String apiBaseUrl = 'https://finora-backend-lvio.onrender.com/api'; // Production
+  static const String apiBaseUrl =
+      'https://finora-backend-lvio.onrender.com/api';
 
   // Hive Box Names
   static const String offlineBox = 'finora_offline_data';
@@ -21,16 +18,24 @@ class AppConstants {
   // Game Defaults
   static const double defaultWalletBalance = 5000.0;
   static const double defaultStressLevel = 0.20;
-  static const int defaultHealthScore = 50;
-  static const int defaultSafetyScore = 50;
+  static const int defaultHealthScore = 0;
+  static const int defaultSafetyScore = 0;
   static const double emergencyFundTarget = 100000.0;
+
+  // Role-Based Starting Balance
+  static const Map<String, double> roleStartingBalance = {
+    'Farmer': 30000.0,
+    'Woman': 20000.0,
+    'Student': 5000.0,
+    'Young Adult': 40000.0,
+  };
 
   // Role-Based Monthly Salary
   static const Map<String, double> roleSalary = {
-    'Farmer': 15000.0,
-    'Woman': 12000.0,
+    'Farmer': 30000.0,
+    'Woman': 20000.0,
     'Student': 5000.0,
-    'Young Adult': 50000.0,
+    'Young Adult': 40000.0,
   };
 
   // Role-Based Budget Amount
@@ -54,8 +59,5 @@ class AppConstants {
   static const String badgeRoleMaster = 'role_master';
 
   // Languages
-  static const Map<String, String> supportedLanguages = {
-    'en': 'English',
-    'hi': 'हिन्दी',
-  };
+  static const Map<String, String> supportedLanguages = {'en': 'English'};
 }

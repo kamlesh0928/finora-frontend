@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import '../../../core/constants/app_constants.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/game_provider.dart';
 import '../../../core/providers/wallet_provider.dart';
@@ -72,18 +71,9 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              _profileTag(
-                                auth.userRole ?? 'No role',
-                                _getRoleColor(auth.userRole),
-                              ),
-                              const SizedBox(width: 6),
-                              _profileTag(
-                                auth.language == 'hi' ? 'हिन्दी' : 'English',
-                                const Color(0xFF1565C0),
-                              ),
-                            ],
+                          _profileTag(
+                            auth.userRole ?? 'No role',
+                            _getRoleColor(auth.userRole),
                           ),
                         ],
                       ),
@@ -204,13 +194,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              _settingsTile(
-                context,
-                icon: Icons.language,
-                title: 'language'.tr(),
-                subtitle: auth.language == 'hi' ? 'हिन्दी' : 'English',
-                onTap: () => _showLanguageDialog(context, auth),
-              ),
+
               _settingsTile(
                 context,
                 icon: Icons.refresh,
@@ -398,38 +382,6 @@ class ProfileScreen extends StatelessWidget {
       default:
         return const Color(0xFF757575);
     }
-  }
-
-  void _showLanguageDialog(BuildContext context, AuthProvider auth) {
-    showDialog(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: const Text('Select Language'),
-        children: AppConstants.supportedLanguages.entries
-            .map(
-              (e) => SimpleDialogOption(
-                onPressed: () async {
-                  await context.setLocale(Locale(e.key));
-                  auth.setLanguage(e.key);
-                  if (ctx.mounted) Navigator.pop(ctx);
-                },
-                child: Row(
-                  children: [
-                    if (auth.language == e.key)
-                      const Icon(
-                        Icons.check,
-                        color: Color(0xFF43A047),
-                        size: 18,
-                      ),
-                    if (auth.language == e.key) const SizedBox(width: 8),
-                    Text(e.value, style: const TextStyle(fontSize: 16)),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
   }
 
   void _showResetDialog(

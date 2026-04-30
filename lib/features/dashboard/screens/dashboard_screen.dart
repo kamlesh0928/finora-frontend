@@ -276,78 +276,98 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Daily Scenario Challenge
-              if (game.hasMoreScenarios) ...[
-                Text(
-                  'daily_challenge'.tr(),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              Text(
+                'daily_challenge'.tr(),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ScenarioScreen()),
+              ),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  if (game.hasMoreScenarios) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ScenarioScreen()),
+                    );
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: game.hasMoreScenarios
+                        ? theme.colorScheme.tertiary.withValues(alpha: 0.08)
+                        : const Color(0xFF4CAF50).withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: game.hasMoreScenarios
+                          ? theme.colorScheme.tertiary.withValues(alpha: 0.2)
+                          : const Color(0xFF4CAF50).withValues(alpha: 0.2),
+                    ),
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.tertiary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: theme.colorScheme.tertiary.withValues(
-                          alpha: 0.2,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: game.hasMoreScenarios
+                              ? theme.colorScheme.tertiary.withValues(
+                                  alpha: 0.15,
+                                )
+                              : const Color(0xFF4CAF50).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          game.hasMoreScenarios
+                              ? Icons.play_arrow_rounded
+                              : Icons.check_circle,
+                          color: game.hasMoreScenarios
+                              ? theme.colorScheme.tertiary
+                              : const Color(0xFF4CAF50),
+                          size: 28,
                         ),
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.tertiary.withValues(
-                              alpha: 0.15,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              game.hasMoreScenarios
+                                  ? (game.currentScenario?.title ??
+                                        'next_scenario'.tr())
+                                  : 'All Scenarios Completed',
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: game.hasMoreScenarios
+                                    ? null
+                                    : const Color(0xFF2E7D32),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            Icons.play_arrow_rounded,
-                            color: theme.colorScheme.tertiary,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                game.currentScenario?.title ??
-                                    'next_scenario'.tr(),
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            const SizedBox(height: 4),
+                            Text(
+                              game.hasMoreScenarios
+                                  ? 'tap_to_start'.tr()
+                                  : 'Great job completing all challenges!',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: game.hasMoreScenarios
+                                    ? theme.colorScheme.onSurfaceVariant
+                                    : const Color(0xFF388E3C),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'tap_to_start'.tr(),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                      ),
+                      if (game.hasMoreScenarios)
                         Icon(
                           Icons.arrow_forward_ios,
                           size: 14,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-              ],
+              ),
               const SizedBox(height: 20),
 
               // Quick Tip
