@@ -15,6 +15,8 @@ class UserModel {
   final int scenariosCompleted;
   final int currentStreak;
   final int longestStreak;
+  final String authProvider;
+  final bool hasPassword;
   final DateTime? createdAt;
 
   const UserModel({
@@ -33,6 +35,8 @@ class UserModel {
     this.scenariosCompleted = 0,
     this.currentStreak = 0,
     this.longestStreak = 0,
+    this.authProvider = 'email',
+    this.hasPassword = false,
     this.createdAt,
   });
 
@@ -53,6 +57,8 @@ class UserModel {
       scenariosCompleted: json['scenarios_completed'] ?? 0,
       currentStreak: json['current_streak'] ?? 0,
       longestStreak: json['longest_streak'] ?? 0,
+      authProvider: json['auth_provider'] ?? 'email',
+      hasPassword: json['has_password'] ?? false,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
           : null,
@@ -76,6 +82,8 @@ class UserModel {
       'scenarios_completed': scenariosCompleted,
       'current_streak': currentStreak,
       'longest_streak': longestStreak,
+      'auth_provider': authProvider,
+      'has_password': hasPassword,
       'created_at': createdAt?.toIso8601String(),
     };
   }
@@ -96,6 +104,8 @@ class UserModel {
     int? scenariosCompleted,
     int? currentStreak,
     int? longestStreak,
+    String? authProvider,
+    bool? hasPassword,
     DateTime? createdAt,
   }) {
     return UserModel(
@@ -114,6 +124,8 @@ class UserModel {
       scenariosCompleted: scenariosCompleted ?? this.scenariosCompleted,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
+      authProvider: authProvider ?? this.authProvider,
+      hasPassword: hasPassword ?? this.hasPassword,
       createdAt: createdAt ?? this.createdAt,
     );
   }
