@@ -202,6 +202,14 @@ class ProfileScreen extends StatelessWidget {
                 subtitle: 'Start fresh',
                 onTap: () => _showResetDialog(context, game, wallet),
               ),
+              if (auth.user?.hasPassword == false)
+                _settingsTile(
+                  context,
+                  icon: Icons.lock_outline,
+                  title: 'Add Password',
+                  subtitle: 'Set a password for your account',
+                  onTap: () => _showAddPasswordDialog(context, auth),
+                ),
               _settingsTile(
                 context,
                 icon: Icons.logout,
@@ -412,6 +420,70 @@ class ProfileScreen extends StatelessWidget {
               backgroundColor: const Color(0xFFD32F2F),
             ),
             child: const Text('Reset Everything'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddPasswordDialog(BuildContext context, AuthProvider auth) {
+    final passwordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Add Password'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Set a password to secure your account.'),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock_outline),
+                ),
+                validator: (value) {
+                  if (value == null || value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                final success = await auth.addPassword(passwordController.text);
+                if (ctx.mounted) Navigator.pop(ctx);
+                if (success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Password added successfully')),
+                  );
+                } else if (context.mounted && auth.errorMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(auth.errorMessage!),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Save'),
           ),
         ],
       ),

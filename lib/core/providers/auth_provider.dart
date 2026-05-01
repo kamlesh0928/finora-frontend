@@ -264,6 +264,65 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reset password directly for demo purposes
+  Future<bool> resetPassword(String email, String newPassword) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _api.post(
+        '/auth/reset-password',
+        body: {'email': email, 'new_password': newPassword},
+        auth: false,
+      );
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      if (e is ApiException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'An unexpected error occurred';
+      }
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Add password to a user account (e.g., for Google Auth users)
+  Future<bool> addPassword(String password) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _api.put(
+        '/user/add-password',
+        body: {'password': password},
+      );
+      
+      if (_user != null) {
+        _user = _user!.copyWith(hasPassword: true);
+        await _saveUserData(_user!);
+      }
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      if (e is ApiException) {
+        _errorMessage = e.message;
+      } else {
+        _errorMessage = 'An unexpected error occurred';
+      }
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Clear error message.
   void clearError() {
     _errorMessage = null;
